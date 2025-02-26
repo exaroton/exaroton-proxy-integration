@@ -1,0 +1,35 @@
+[versions]
+adventure-api = "4.18.0"
+adventure-platforms = "4.3.4"
+brigadier = "1.0.18"
+exaroton-api = { strictly = "[1.4.2, 2.0)", prefer = "1.6.2" }
+gson = "2.12.1"
+hangar = "0.1.2"
+jetbrains-annotations = "26.0.2"
+minotaur = "2.8.7"
+night-config = { strictly = "[3.7,4.0)", prefer = "3.8.1" }
+runtask = "2.3.1"
+shadow = "9.0.0-beta8"
+slf4j = "2.0.16"
+velocity-api = "3.4.0-SNAPSHOT"
+
+[libraries]
+adventure-api = { module = "net.kyori:adventure-api", version.ref = "adventure-api" }
+adventure-bukkit = { module = "net.kyori:adventure-platform-bukkit", version.ref = "adventure-platforms" }
+adventure-bungeecord = { module = "net.kyori:adventure-platform-bungeecord", version.ref = "adventure-platforms" }
+brigadier = { module = "com.mojang:brigadier", version.ref = "brigadier" }
+exaroton-api = { module = "com.exaroton:api", version.ref = "exaroton-api" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
+nightconfig-core = { module = "com.electronwill.night-config:core", version.ref = "night-config" }
+nightconfig-toml = { module = "com.electronwill.night-config:toml", version.ref = "night-config" }
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+slf4j-jdk14 = { module = "org.slf4j:slf4j-jdk14", version.ref = "slf4j" }
+velocity-api = { module = "com.velocitypowered:velocity-api", version.ref = "velocity-api" }
+
+[plugins]
+hangar = { id = "io.papermc.hangar-publish-plugin", version.ref = "hangar" }
+minotaur = { id = "com.modrinth.minotaur", version.ref = "minotaur" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
+run-paper = { id = "xyz.jpenilla.run-paper", version.ref = "runtask" }
+run-velocity = { id = "xyz.jpenilla.run-velocity", version.ref = "runtask" }

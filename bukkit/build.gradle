@@ -1,0 +1,40 @@
+plugins {
+    id 'multiloader-adventure'
+    alias(libs.plugins.shadow)
+    alias(libs.plugins.run.paper)
+    alias(libs.plugins.minotaur)
+}
+
+dependencies {
+    compileOnly "org.spigotmc:spigot-api:${minor_minecraft_version}-R0.1-SNAPSHOT"
+    implementation(libs.exaroton.api) {
+        exclude group: 'com.google.code.gson', module: 'gson'
+    }
+    implementation(libs.slf4j.api)
+    implementation(libs.slf4j.jdk14)
+    implementation(libs.nightconfig.toml)
+    implementation(libs.brigadier)
+    implementation(libs.adventure.api)
+    implementation(libs.adventure.bukkit)
+}
+
+tasks {
+    runServer {
+        minecraftVersion(minecraft_version)
+    }
+
+    shadowJar {
+        relocate("org.slf4j", "com.exaroton.slf4j")
+        relocate("com.electronwill.nightconfig", "com.exaroton.nightconfig")
+        dependsOn("javadocJar", "sourcesJar")
+    }
+}
+
+modrinth {
+    token = findProperty('modrinth_api_token') as String ?: ''
+    projectId = modrinth_project_id
+    uploadFile = shadowJar
+    gameVersions = minecraft_version_list
+    loaders = ["spigot", "paper", "purpur"]
+    changelog = rootProject.changelog
+}

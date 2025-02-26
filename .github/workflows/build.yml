@@ -1,0 +1,15 @@
+name: Build
+on: [ push, pull_request ]
+jobs:
+  build:
+    name: Build for all platforms
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Sources
+        uses: actions/checkout@v4
+
+      - name: Setup Build Environment
+        uses: ./.github/actions/setup
+
+      - name: Build with Gradle
+        run: ./gradlew buildAll

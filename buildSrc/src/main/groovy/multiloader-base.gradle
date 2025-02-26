@@ -1,0 +1,118 @@
+// Base plugin for all projects. Used by common and multiloader-common
+
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+base {
+    archivesName = "${plugin_id}-${project.name}-${minecraft_version}"
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(java_version)
+    withSourcesJar()
+    withJavadocJar()
+}
+
+repositories {
+    mavenCentral()
+    // https://docs.gradle.org/current/userguide/declaring_repositories.html#declaring_content_exclusively_found_in_one_repository
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'Spigot'
+                url = uri('https://hub.spigotmc.org/nexus/content/repositories/snapshots/')
+            }
+        }
+        filter {
+            includeGroupAndSubgroups('org.bukkit')
+            includeGroupAndSubgroups('org.spigotmc')
+        }
+    }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'Paper'
+                url = uri('https://repo.papermc.io/repository/maven-public/')
+            }
+        }
+        filter {
+            includeGroupAndSubgroups('com.velocitypowered')
+        }
+    }
+    maven {
+        name = 'Sonatype OSS Snapshots'
+        url = uri('https://oss.sonatype.org/content/repositories/snapshots/')
+    }
+    maven {
+        name = "Minecraft Libraries"
+        url = uri("https://libraries.minecraft.net")
+    }
+}
+
+// Declare capabilities on the outgoing configurations.
+// Read more about capabilities here: https://docs.gradle.org/current/userguide/component_capabilities.html#sec:declaring-additional-capabilities-for-a-local-component
+['apiElements', 'runtimeElements', 'sourcesElements', 'javadocElements'].each { variant ->
+    configurations."$variant".outgoing {
+        capability("$group:${base.archivesName.get()}:$version")
+        capability("$group:$plugin_id-${project.name}-${minecraft_version}:$version")
+        capability("$group:$plugin_id-${project.name}:$version")
+    }
+    publishing.publications.configureEach {
+        suppressPomMetadataWarningsFor(variant)
+    }
+}
+
+jar {
+    manifest {
+        attributes([
+                'Specification-Title'   : plugin_name,
+                'Specification-Vendor'  : plugin_author,
+                'Specification-Version' : project.jar.archiveVersion,
+                'Implementation-Title'  : project.name,
+                'Implementation-Version': project.jar.archiveVersion,
+                'Implementation-Vendor' : plugin_author,
+                'Built-For-Minecraft'   : minecraft_version
+        ])
+    }
+}
+
+processResources {
+    var expandProps = [
+            'version'                       : version,
+            'group'                         : project.group, //Else we target the task's group.
+            'minecraft_version'             : minecraft_version,
+            'min_minecraft_version'         : min_minecraft_version,
+            'max_minecraft_version'         : max_minecraft_version,
+            'minecraft_version_range'       : "[$min_minecraft_version, $max_minecraft_version)",
+            'plugin_name'                   : plugin_name,
+            'plugin_author'                 : plugin_author,
+            'plugin_id'                     : plugin_id,
+            'license'                       : license,
+            'description'                   : project.description,
+            'java_version'                  : java_version,
+            'homepage_url'                  : homepage_url,
+            'sources_url'                   : sources_url,
+            'issues_url'                    : issues_url,
+    ]
+
+    filesMatching(['plugin.yml', 'velocity-plugin.json']) {
+        expand expandProps
+    }
+    inputs.properties(expandProps)
+}
+
+publishing {
+    publications {
+        register('mavenJava', MavenPublication) {
+            artifactId base.archivesName.get()
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url System.getenv('local_maven_url')
+        }
+    }
+}

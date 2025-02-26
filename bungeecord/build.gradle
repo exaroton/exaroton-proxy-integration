@@ -1,0 +1,65 @@
+plugins {
+    id 'multiloader-adventure'
+    alias(libs.plugins.shadow)
+    alias(libs.plugins.minotaur)
+}
+
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
+
+dependencies {
+    compileOnly "net.md-5:bungeecord-api:${minor_minecraft_version}-R0.1-SNAPSHOT"
+    implementation(libs.exaroton.api) {
+        exclude group: 'com.google.code.gson', module: 'gson'
+    }
+    implementation(libs.slf4j.api)
+    implementation(libs.slf4j.jdk14)
+    implementation(libs.nightconfig.toml)
+    implementation(libs.brigadier)
+    implementation(libs.adventure.api)
+    implementation(libs.adventure.bungeecord)
+}
+
+tasks {
+    shadowJar {
+        relocate("org.slf4j", "com.exaroton.slf4j")
+        relocate("com.electronwill.nightconfig", "com.exaroton.nightconfig")
+        dependsOn("javadocJar", "sourcesJar")
+    }
+}
+
+tasks.register("runBungeeCord", JavaExec) {
+    dependsOn("shadowJar")
+    def runDir = file("$projectDir/run")
+    def bungeeCordJar = file("$runDir/BungeeCord.jar")
+    def bungeeCordUrl = 'https://ci.md-5.net/job/BungeeCord/lastSuccessfulBuild/artifact/bootstrap/target/BungeeCord.jar'
+
+    doFirst {
+        if (!bungeeCordJar.exists()) {
+            println "Downloading BungeeCord..."
+            runDir.mkdirs()
+            new URI(bungeeCordUrl).toURL().withInputStream { inputStream ->
+                bungeeCordJar.withOutputStream { outputStream ->
+                    outputStream << inputStream
+                }
+            }
+        }
+
+        copy {
+            from(shadowJar)
+            into("$runDir/plugins")
+        }
+    }
+
+    classpath = files(bungeeCordJar)
+    workingDir(runDir)
+}
+
+modrinth {
+    token = findProperty('modrinth_api_token') as String ?: ''
+    projectId = modrinth_project_id
+    uploadFile = shadowJar
+    gameVersions = minecraft_version_list
+    loaders = ["bungeecord", "waterfall"]
+    changelog = rootProject.changelog
+}

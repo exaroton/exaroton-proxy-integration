@@ -1,0 +1,33 @@
+name: 'Setup Build Environment for Release'
+description: 'Setup Java, Gradle, and git for releasing'
+inputs:
+  version:
+    description: 'Version to release'
+    required: true
+  hangar_token:
+    description: 'Hangar API key/token'
+    required: true
+  modrinth_token:
+    description: 'Modrinth API token'
+    required: true
+  curseforge_token:
+    description: 'CurseForge API token'
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Setup Build Environment
+      uses: ./.github/actions/setup
+
+    - name: Update version in gradle.properties
+      run: |
+        sed -i "s/^version=.*$/version=${{ inputs.version }}/" gradle.properties
+      shell: bash
+
+    - name: Configure publishing secrets
+      run: |
+        mkdir -p "$HOME/.gradle"
+        echo "hangar_api_key = ${{ inputs.hangar_token }}" >> "$HOME/.gradle/gradle.properties"
+        echo "modrinth_api_token = ${{ inputs.modrinth_token }}" >> "$HOME/.gradle/gradle.properties"
+        echo "curseforge_token = ${{ inputs.curseforge_token }}" >> "$HOME/.gradle/gradle.properties"
+      shell: bash

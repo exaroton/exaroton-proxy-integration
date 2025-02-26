@@ -1,0 +1,50 @@
+name: "${plugin_id}"
+version: "${version}"
+description: "${description}"
+author: "${plugin_author}"
+website: "${homepage_url}"
+
+main: com.exaroton.proxy.BungeePlugin
+
+commands:
+  exaroton:
+    description: "Manage exaroton servers on your proxy"
+    usage: "/exaroton <start|stop|restart|add|remove|switch|transfer>"
+    permission: "exaroton"
+
+permissions:
+  exaroton:
+    description: "Base permission required for all commands"
+    default: op
+  exaroton.start:
+    description: "Allows starting a server"
+    default: op
+  exaroton.stop:
+    description: "Allows stopping a server"
+    default: op
+  exaroton.restart:
+    description: "Allows restarting a server"
+    default: op
+  exaroton.add:
+    description: "Allows adding a server to the proxy"
+    default: op
+  exaroton.remove:
+    description: "Allows removing a server from the proxy"
+    default: op
+  exaroton.switch:
+    description: "Allows switching to another server"
+    default: op
+  exaroton.transfer:
+    description: "Allows transferring a player to another server"
+    default: op
+  exaroton.*:
+    description: "Gives access to all exaroton commands"
+    children:
+      exaroton: true
+      exaroton.start: true
+      exaroton.stop: true
+      exaroton.restart: true
+      exaroton.add: true
+      exaroton.remove: true
+      exaroton.switch: true
+      exaroton.transfer: true

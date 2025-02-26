@@ -1,0 +1,73 @@
+import io.papermc.hangarpublishplugin.HangarPublishTask
+
+plugins {
+    alias(libs.plugins.hangar)
+}
+
+
+def changelogMd = file('CHANGELOG.md')
+ext {
+    changelog = changelogMd.exists() ? changelogMd.text : ''
+    minecraft_version_list = minecraft_versions.split(",").toList()
+    velocity_version_list = velocity_versions.split(",").toList()
+}
+
+def copyShadowJar = it -> {
+    it.include('*-all.jar', '*-javadoc.jar', '*-sources.jar')
+    it.rename { String fileName ->
+        fileName.replace('-all', '')
+    }
+}
+
+tasks.register('buildAll', Copy) {
+    dependsOn(':bukkit:shadowJar', ':velocity:shadowJar', ':bungeecord:shadowJar')
+
+    from('bukkit/build/libs', copyShadowJar)
+    from('bungeecord/build/libs', copyShadowJar)
+    from('velocity/build/libs', copyShadowJar)
+
+    it.rename { String fileName ->
+        fileName.replace(plugin_name, plugin_id)
+    }
+
+    into('result')
+}
+
+tasks.register('clean', Delete) {
+    delete 'result'
+}
+
+hangarPublish {
+    evaluationDependsOn(":bukkit")
+    evaluationDependsOn(":bungeecord")
+    evaluationDependsOn(":velocity")
+
+    publications.register('plugin') {
+        version = project.version
+        id = hangar_project_id
+        channel = 'Release'
+        changelog = project.changelog
+
+        apiKey = findProperty('hangar_api_key') as String ?: ''
+
+        // register platforms
+        platforms {
+            paper {
+                jar = project(":bukkit").tasks.named("shadowJar").get().outputs.files.singleFile
+                platformVersions = minecraft_version_list
+            }
+            waterfall {
+                jar = project(":bungeecord").tasks.named("shadowJar").get().outputs.files.singleFile
+                platformVersions = List.of("1.21") // TODO: Check if 1.22 will be selectable on hangar since waterfall won't be updated
+            }
+            velocity {
+                jar = project(":velocity").tasks.named("shadowJar").get().outputs.files.singleFile
+                platformVersions = velocity_version_list
+            }
+        }
+    }
+}
+
+tasks.withType(HangarPublishTask).configureEach {
+    dependsOn(':bukkit:shadowJar', ':velocity:shadowJar', ':bungeecord:shadowJar')
+}

@@ -1,0 +1,97 @@
+name: Release
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release'
+        required: true
+
+jobs:
+  release:
+    name: Release on GitHub
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Sources
+        uses: actions/checkout@v4
+
+      - name: Setup Build Environment
+        uses: ./.github/actions/setup-release
+        with:
+          version: ${{ github.event.inputs.version }}
+          hangar_token: ${{ secrets.HANGAR_TOKEN }}
+          modrinth_token: ${{ secrets.MODRINTH_TOKEN }}
+          curseforge_token: ${{ secrets.CURSEFORGE_TOKEN }}
+
+      - name: Build with Gradle
+        run: ./gradlew buildAll
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./result/*.jar
+          body_path: "${{ github.workspace }}/CHANGELOG.md"
+          name: v${{ github.event.inputs.version }}
+          tag_name: ${{ github.event.inputs.version }}
+
+      - name: Bump version in gradle.properties
+        run: |
+          IFS='.' read -r major minor patch <<< "${{ github.event.inputs.version }}"
+          next_patch=$((patch + 1))
+          next_version="${major}.${minor}.${next_patch}-SNAPSHOT"
+          sed -i "s/^version=.*$/version=$next_version/" gradle.properties
+
+      - name: List changes to gradle.properties
+        run: echo "changes=$(git diff -- gradle.properties | xargs)" | tee -a $GITHUB_OUTPUT
+        id: diff
+
+      - name: Commit and push changes to gradle.properties
+        if: steps.diff.outputs.changes != ''
+        run: |
+          git add gradle.properties
+          git commit -m "Bump version to $next_version"
+          git push
+
+  publish-projects:
+    name: Publish ${{ matrix.project }} (${{ matrix.task }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        task: [modrinth]
+        project: [bukkit, bungee, velocity]
+        # TODO: Add CurseForge bukkit publishing once CurseForgeGradle supports that
+    steps:
+      - name: Checkout Sources
+        uses: actions/checkout@v4
+
+      - name: Setup Build Environment
+        uses: ./.github/actions/setup-release
+        with:
+          version: ${{ github.event.inputs.version }}
+          hangar_token: ${{ secrets.HANGAR_TOKEN }}
+          modrinth_token: ${{ secrets.MODRINTH_TOKEN }}
+          curseforge_token: ${{ secrets.CURSEFORGE_TOKEN }}
+
+      - name: Publish ${{ matrix.project }} with ${{ matrix.task }}
+        run: ./gradlew ":${{ matrix.project }}:${{ matrix.task }}"
+
+  publish-hangar:
+    name: Publish plugins to hangar
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Sources
+        uses: actions/checkout@v4
+
+      - name: Setup Build Environment
+        uses: ./.github/actions/setup-release
+        with:
+          version: ${{ github.event.inputs.version }}
+          hangar_token: ${{ secrets.HANGAR_TOKEN }}
+          modrinth_token: ${{ secrets.MODRINTH_TOKEN }}
+          curseforge_token: ${{ secrets.CURSEFORGE_TOKEN }}
+
+      - name: Publish to Hangar
+        run: ./gradlew publishAllPublicationsToHangar
