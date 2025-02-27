@@ -23,6 +23,7 @@ public class CommonPlugin {
     protected ExarotonClient apiClient;
     protected FileConfig configFile;
     protected Configuration config = new Configuration();
+    protected ServerCache serverCache;
 
     public void init() {
         configFile = Services.platform().getConfig()
@@ -37,21 +38,49 @@ public class CommonPlugin {
         ObjectSerializer.standard().serializeFields(config, configFile);
         configFile.save();
 
+        if (config.apiToken == null || config.apiToken.isEmpty() || config.apiToken.equals("example-token")) {
+            throw new IllegalStateException("No API token provided. Please set the API token in the configuration file.");
+        }
+
         apiClient = new ExarotonClient(config.apiToken).setUserAgent("proxy-plugin/"
                 + Services.platform().getPlatformName() + "/" + Services.platform().getPluginVersion());
+        serverCache = new ServerCache(apiClient);
     }
 
-    public Optional<Server> findServer(String name, boolean useCache) throws APIException {
-        // TODO: find server by:
-        // - name in proxy
-        // - id
-        // - full address / custom domain
-        // - name in exaroton
-        return Optional.empty();
+    /**
+     * Find a specific server
+     * @param name server name
+     * @param refresh force refresh the server cache
+     * @return the server if it was found or an empty optional
+     * @throws APIException API error while fetching servers
+     */
+    public Optional<Server> findServer(String name, boolean refresh) throws APIException {
+        // TODO: find server by name in proxy
+
+        if (refresh) {
+            serverCache.refresh();
+        }
+
+        return serverCache.getServer(name);
     }
 
+    /**
+     * Find a specific server and refresh the server cache
+     * @param name server name
+     * @return the server if it was found or an empty optional
+     * @throws APIException API error while fetching servers
+     */
     public Optional<Server> findServer(String name) throws APIException {
-        return findServer(name, false);
+        return findServer(name, true);
+    }
+
+    /**
+     * Get all available exaroton servers
+     * @return all available exaroton servers
+     * @throws APIException API error while fetching servers
+     */
+    public Collection<Server> getServers() throws APIException {
+        return serverCache.getServers();
     }
 
     protected void migrateOldConfigFields() {
