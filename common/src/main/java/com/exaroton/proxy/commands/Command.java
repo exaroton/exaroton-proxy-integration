@@ -1,6 +1,7 @@
 package com.exaroton.proxy.commands;
 
 import com.exaroton.api.ExarotonClient;
+import com.exaroton.proxy.CommonPlugin;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.exaroton.proxy.components.IComponent;
@@ -19,6 +20,10 @@ public abstract class Command<
         ClickEventType
         > {
     /**
+     * The plugin
+     */
+    protected final CommonPlugin plugin;
+    /**
      * The exaroton API client
      */
     protected final ExarotonClient apiClient;
@@ -29,13 +34,16 @@ public abstract class Command<
 
     /**
      * Create a new command
+     * @param plugin The plugin
      * @param apiClient The exaroton API client
      * @param componentFactory A component factory
      */
     public Command(
+            CommonPlugin plugin,
             ExarotonClient apiClient,
             IComponentFactory<ComponentType, StyleType, ClickEventType> componentFactory
     ) {
+        this.plugin = plugin;
         this.apiClient = apiClient;
         this.componentFactory = componentFactory;
     }
@@ -52,14 +60,4 @@ public abstract class Command<
             BuildContext<T, ComponentType> buildContext,
             LiteralArgumentBuilder<T> builder
     );
-
-    /**
-     * Execute the command
-     *
-     * @param context      the command context
-     * @param buildContext Contains the environment and various methods to execute the command.
-     * @param <T>          the command source type
-     * @return the result of the command
-     */
-    public abstract <T> int execute(CommandContext<T> context, BuildContext<T, ComponentType> buildContext);
 }

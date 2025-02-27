@@ -3,7 +3,9 @@ package com.exaroton.proxy;
 import com.electronwill.nightconfig.core.file.FileConfig;
 import com.electronwill.nightconfig.core.serde.ObjectDeserializer;
 import com.electronwill.nightconfig.core.serde.ObjectSerializer;
+import com.exaroton.api.APIException;
 import com.exaroton.api.ExarotonClient;
+import com.exaroton.api.server.Server;
 import com.exaroton.proxy.commands.*;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -15,6 +17,7 @@ import com.exaroton.proxy.platform.Services;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class CommonPlugin {
     protected ExarotonClient apiClient;
@@ -36,6 +39,19 @@ public class CommonPlugin {
 
         apiClient = new ExarotonClient(config.apiToken).setUserAgent("proxy-plugin/"
                 + Services.platform().getPlatformName() + "/" + Services.platform().getPluginVersion());
+    }
+
+    public Optional<Server> findServer(String name, boolean useCache) throws APIException {
+        // TODO: find server by:
+        // - name in proxy
+        // - id
+        // - full address / custom domain
+        // - name in exaroton
+        return Optional.empty();
+    }
+
+    public Optional<Server> findServer(String name) throws APIException {
+        return findServer(name, false);
     }
 
     protected void migrateOldConfigFields() {
@@ -75,7 +91,7 @@ public class CommonPlugin {
             IComponentFactory<ComponentType, StyleType, ClickEventType> componentFactory
     ) {
         return List.of(
-                // TODO
+                new StartCommand<>(this, apiClient, componentFactory)
         );
     }
 
