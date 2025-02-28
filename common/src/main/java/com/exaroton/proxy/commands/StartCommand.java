@@ -10,6 +10,10 @@ import com.exaroton.proxy.components.IComponentFactory;
 import com.exaroton.proxy.components.IStyle;
 import com.mojang.brigadier.context.CommandContext;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+
 public class StartCommand<
         ComponentType extends IComponent<ComponentType, StyleType, ClickEventType>,
         StyleType extends IStyle<StyleType, ClickEventType>,
@@ -39,11 +43,17 @@ public class StartCommand<
             source.sendFailure(componentFactory.literal("Server has to be offline to be started"));
             return 0;
         }
-        
-        //  TODO: start listening to status
+
+        // TODO: Make sure player gets updates about the server status
+        plugin.getStatusSubscribers().addProxyStatusSubscriber(server, null);
         server.start();
         source.sendSuccess(componentFactory.literal("Starting server " + /* TODO: name */ "."), true);
 
         return 0;
+    }
+
+    @Override
+    protected Optional<Collection<Integer>> getAllowableServerStatuses() {
+        return Optional.of(List.of(ServerStatus.OFFLINE, ServerStatus.CRASHED));
     }
 }

@@ -1,8 +1,9 @@
-package com.exaroton.proxy;
+package com.exaroton.proxy.servers;
 
 import com.exaroton.api.APIException;
 import com.exaroton.api.ExarotonClient;
 import com.exaroton.api.server.Server;
+import com.exaroton.api.ws.subscriber.ServerStatusSubscriber;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,7 +15,7 @@ import java.util.function.Function;
 /**
  * A cache for exaroton servers
  */
-public class ServerCache {
+public class ServerCache extends ServerStatusSubscriber {
     private static final Duration CACHE_DURATION = Duration.ofMinutes(1);
 
     @NotNull
@@ -22,13 +23,14 @@ public class ServerCache {
     @Nullable
     private Instant lastUpdate;
     @NotNull
-    private final Collection<Server> servers = new HashSet<>();
+    private final Map<String, Server> servers = new HashMap<>();
 
     /**
      * Create a new server cache
      * @param apiClient exaroton API client
      */
     public ServerCache(@NotNull ExarotonClient apiClient) {
+        super();
         this.apiClient = apiClient;
     }
 
@@ -38,7 +40,9 @@ public class ServerCache {
      */
     public void refresh() throws APIException {
         this.servers.clear();
-        this.servers.addAll(List.of(apiClient.getServers()));
+        for (Server server : apiClient.getServers()) {
+            this.servers.put(server.getId(), server);
+        }
         this.lastUpdate = Instant.now();
     }
 
@@ -49,7 +53,7 @@ public class ServerCache {
      */
     public Collection<Server> getServers() throws APIException {
         refreshIfNecessary();
-        return servers;
+        return servers.values();
     }
 
     /**
@@ -62,13 +66,13 @@ public class ServerCache {
         Objects.requireNonNull(query, "query cannot be null");
         refreshIfNecessary();
 
-        return getServer(s -> query.equals(s.getId()))
+        return Optional.ofNullable(servers.get(query))
                 .or(() -> getServer(s -> query.equals(s.getName())))
                 .or(() -> getServer(s -> query.equals(s.getAddress())));
     }
 
     private Optional<Server> getServer(Function<Server, Boolean> matcher) {
-        return servers.stream().filter(matcher::apply).findFirst();
+        return servers.values().stream().filter(matcher::apply).findFirst();
     }
 
     private void refreshIfNecessary() throws APIException {
@@ -83,5 +87,10 @@ public class ServerCache {
         }
 
         return !Duration.between(lastUpdate, Instant.now().plus(CACHE_DURATION)).isNegative();
+    }
+
+    @Override
+    public void statusUpdate(Server oldServer, Server newServer) {
+        servers.put(newServer.getId(), newServer);
     }
 }
