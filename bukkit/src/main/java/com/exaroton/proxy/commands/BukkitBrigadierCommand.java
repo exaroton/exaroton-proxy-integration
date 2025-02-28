@@ -5,7 +5,7 @@ import com.exaroton.proxy.Constants;
 import com.exaroton.proxy.BukkitPlugin;
 import com.exaroton.proxy.components.AdventureComponent;
 import com.exaroton.proxy.components.AdventureStyle;
-import com.exaroton.proxy.components.IComponentFactory;
+import com.exaroton.proxy.components.ComponentFactory;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.command.*;
 import org.bukkit.command.Command;
@@ -23,7 +23,7 @@ public class BukkitBrigadierCommand implements CommandExecutor, TabCompleter {
             BukkitPlugin plugin,
             CommandDispatcher<CommandSender> dispatcher,
             BuildContext<CommandSender, AdventureComponent> buildContext,
-            IComponentFactory<AdventureComponent, AdventureStyle, ClickEvent> componentFactory
+            ComponentFactory<AdventureComponent, AdventureStyle, ClickEvent> componentFactory
     ) {
         this.plugin = plugin;
         this.dispatcher = dispatcher;

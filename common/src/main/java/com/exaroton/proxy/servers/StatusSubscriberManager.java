@@ -55,6 +55,7 @@ public class StatusSubscriberManager {
 
     private CompositeStatusSubscriber createListener(Server server) {
         CompositeStatusSubscriber subscriber = new CompositeStatusSubscriber(serverCache, server);
+        server.subscribe();
         server.addStatusSubscriber(subscriber);
         return subscriber;
     }

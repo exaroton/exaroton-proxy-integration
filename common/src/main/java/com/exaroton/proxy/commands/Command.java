@@ -3,9 +3,8 @@ package com.exaroton.proxy.commands;
 import com.exaroton.api.ExarotonClient;
 import com.exaroton.proxy.CommonPlugin;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.context.CommandContext;
 import com.exaroton.proxy.components.IComponent;
-import com.exaroton.proxy.components.IComponentFactory;
+import com.exaroton.proxy.components.ComponentFactory;
 import com.exaroton.proxy.components.IStyle;
 
 /**
@@ -30,7 +29,7 @@ public abstract class Command<
     /**
      * A component factory
      */
-    protected final IComponentFactory<ComponentType, StyleType, ClickEventType> componentFactory;
+    protected final ComponentFactory<ComponentType, StyleType, ClickEventType> componentFactory;
 
     /**
      * Create a new command
@@ -41,7 +40,7 @@ public abstract class Command<
     public Command(
             CommonPlugin plugin,
             ExarotonClient apiClient,
-            IComponentFactory<ComponentType, StyleType, ClickEventType> componentFactory
+            ComponentFactory<ComponentType, StyleType, ClickEventType> componentFactory
     ) {
         this.plugin = plugin;
         this.apiClient = apiClient;

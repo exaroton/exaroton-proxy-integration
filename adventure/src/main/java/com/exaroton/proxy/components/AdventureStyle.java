@@ -3,6 +3,7 @@ package com.exaroton.proxy.components;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 
 /**
@@ -37,6 +38,11 @@ public class AdventureStyle implements IStyle<AdventureStyle, ClickEvent> {
                 boxed = boxed.color(NamedTextColor.RED);
                 break;
             default:
+                if (color.getColorCode() != null) {
+                    boxed = boxed.color(TextColor.color(color.getColorCode()));
+                    break;
+                }
+
                 throw new UnsupportedOperationException("Unsupported color: " + color);
         }
         return this;

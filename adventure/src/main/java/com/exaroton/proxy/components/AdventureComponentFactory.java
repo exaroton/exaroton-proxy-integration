@@ -7,7 +7,7 @@ import net.kyori.adventure.text.format.Style;
 /**
  * A IComponentFactory implementation for Adventure components
  */
-public class AdventureComponentFactory implements IComponentFactory<
+public class AdventureComponentFactory extends ComponentFactory<
         AdventureComponent,
         AdventureStyle,
         ClickEvent

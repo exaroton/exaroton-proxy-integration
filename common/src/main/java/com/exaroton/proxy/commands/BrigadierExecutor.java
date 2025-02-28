@@ -5,7 +5,7 @@ import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.exaroton.proxy.Constants;
 import com.exaroton.proxy.components.IComponent;
-import com.exaroton.proxy.components.IComponentFactory;
+import com.exaroton.proxy.components.ComponentFactory;
 import com.exaroton.proxy.components.IStyle;
 
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ public class BrigadierExecutor<
     /**
      * The component factory for the platform
      */
-    protected final IComponentFactory<ComponentType, StyleType, ClickEventType> componentFactory;
+    protected final ComponentFactory<ComponentType, StyleType, ClickEventType> componentFactory;
 
     /**
      * Create a new brigadier executor
@@ -48,7 +48,7 @@ public class BrigadierExecutor<
      */
     public BrigadierExecutor(CommandDispatcher<T> dispatcher,
                              BuildContext<T, ComponentType> context,
-                             IComponentFactory<ComponentType, StyleType, ClickEventType> componentFactory) {
+                             ComponentFactory<ComponentType, StyleType, ClickEventType> componentFactory) {
         this.dispatcher = dispatcher;
         this.context = context;
         this.componentFactory = componentFactory;

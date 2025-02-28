@@ -6,7 +6,7 @@ import com.exaroton.api.server.Server;
 import com.exaroton.proxy.CommonPlugin;
 import com.exaroton.proxy.Constants;
 import com.exaroton.proxy.components.IComponent;
-import com.exaroton.proxy.components.IComponentFactory;
+import com.exaroton.proxy.components.ComponentFactory;
 import com.exaroton.proxy.components.IStyle;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -44,7 +44,7 @@ public abstract class ServerCommand<
      */
     public ServerCommand(CommonPlugin plugin,
                          ExarotonClient apiClient,
-                         IComponentFactory<ComponentType, StyleType, ClickEventType> componentFactory,
+                         ComponentFactory<ComponentType, StyleType, ClickEventType> componentFactory,
                          String name,
                          Permission permission) {
         super(plugin, apiClient, componentFactory);

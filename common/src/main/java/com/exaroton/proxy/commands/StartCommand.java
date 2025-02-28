@@ -6,8 +6,9 @@ import com.exaroton.api.server.Server;
 import com.exaroton.api.server.ServerStatus;
 import com.exaroton.proxy.CommonPlugin;
 import com.exaroton.proxy.components.IComponent;
-import com.exaroton.proxy.components.IComponentFactory;
+import com.exaroton.proxy.components.ComponentFactory;
 import com.exaroton.proxy.components.IStyle;
+import com.exaroton.proxy.servers.WaitForStatusSubscriber;
 import com.mojang.brigadier.context.CommandContext;
 
 import java.util.Collection;
@@ -29,7 +30,7 @@ public class StartCommand<
      */
     public StartCommand(CommonPlugin plugin,
                         ExarotonClient apiClient,
-                        IComponentFactory<ComponentType, StyleType, ClickEventType> componentFactory) {
+                        ComponentFactory<ComponentType, StyleType, ClickEventType> componentFactory) {
         super(plugin, apiClient, componentFactory, "start", Permission.START);
     }
 
@@ -44,10 +45,15 @@ public class StartCommand<
             return 0;
         }
 
-        // TODO: Make sure player gets updates about the server status
-        plugin.getStatusSubscribers().addProxyStatusSubscriber(server, null);
+        var subscribers = plugin.getStatusSubscribers();
+        subscribers.addProxyStatusSubscriber(server, null);
+        new WaitForStatusSubscriber<>(subscribers.getListener(server), source, componentFactory, ServerStatus.ONLINE)
+                .subscribe();
+
         server.start();
-        source.sendSuccess(componentFactory.literal("Starting server " + /* TODO: name */ "."), true);
+        source.sendSuccess(componentFactory.literal("Starting server ")
+                .append(componentFactory.exarotonGreen(server.getAddress()))
+                .append("."), true);
 
         return 0;
     }

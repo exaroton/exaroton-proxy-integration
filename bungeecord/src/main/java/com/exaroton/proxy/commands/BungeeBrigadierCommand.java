@@ -3,7 +3,7 @@ package com.exaroton.proxy.commands;
 import com.mojang.brigadier.CommandDispatcher;
 import com.exaroton.proxy.components.AdventureComponent;
 import com.exaroton.proxy.components.AdventureStyle;
-import com.exaroton.proxy.components.IComponentFactory;
+import com.exaroton.proxy.components.ComponentFactory;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Command;
@@ -19,7 +19,7 @@ public class BungeeBrigadierCommand extends Command implements TabExecutor {
     public BungeeBrigadierCommand(
             CommandDispatcher<CommandSender> dispatcher,
             BuildContext<CommandSender, AdventureComponent> buildContext,
-            IComponentFactory<AdventureComponent, AdventureStyle, ClickEvent> componentFactory
+            ComponentFactory<AdventureComponent, AdventureStyle, ClickEvent> componentFactory
     ) {
         super("exaroton", Permission.BASE.node());
         this.executor = new BrigadierExecutor<>(dispatcher, buildContext, componentFactory);

@@ -7,7 +7,7 @@ package com.exaroton.proxy.components;
  * @param <StyleType> The type of the style produced by this factory.
  * @param <ClickEventType> The type of the click event produced by this factory.
  */
-public interface IComponentFactory<
+public abstract class ComponentFactory<
         ComponentType extends IComponent<ComponentType, StyleType, ClickEventType>,
         StyleType extends IStyle<StyleType, ClickEventType>,
         ClickEventType
@@ -17,19 +17,19 @@ public interface IComponentFactory<
      * @param text The text of the component
      * @return The new component
      */
-    ComponentType literal(String text);
+    public abstract ComponentType literal(String text);
 
     /**
      * Create a new empty component
      * @return The new component
      */
-    ComponentType empty();
+    public abstract ComponentType empty();
 
     /**
      * Create a new empty style
      * @return The new style
      */
-    StyleType style();
+    public abstract StyleType style();
 
     /**
      * Create a new click event
@@ -37,5 +37,14 @@ public interface IComponentFactory<
      * @param value The value of the click event (e.g. the command to run or the URL to open)
      * @return The new click event
      */
-    ClickEventType clickEvent(ClickEventAction action, String value);
+    public abstract ClickEventType clickEvent(ClickEventAction action, String value);
+
+    /**
+     * Create a text component for the text with the exaroton green color
+     * @param text The text of the component
+     * @return The new component
+     */
+    public ComponentType exarotonGreen(String text) {
+        return literal(text).style(style().color(Color.EXAROTON_GREEN));
+    }
 }

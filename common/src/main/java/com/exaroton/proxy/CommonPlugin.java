@@ -13,7 +13,7 @@ import com.exaroton.proxy.servers.proxy.IProxyServerManager;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.exaroton.proxy.components.IComponent;
-import com.exaroton.proxy.components.IComponentFactory;
+import com.exaroton.proxy.components.ComponentFactory;
 import com.exaroton.proxy.components.IStyle;
 import com.exaroton.proxy.platform.Services;
 
@@ -60,7 +60,7 @@ public abstract class CommonPlugin {
      * @throws APIException API error while fetching servers
      */
     public Optional<Server> findServer(String name, boolean refresh) throws APIException {
-        // TODO: find server by name in proxy
+        name = getProxyServerManager().getAddress(name).orElse(name);
 
         if (refresh) {
             serverCache.refresh();
@@ -136,7 +136,7 @@ public abstract class CommonPlugin {
             StyleType extends IStyle<StyleType, ClickEventType>,
             ClickEventType
             > Collection<Command<ComponentType, StyleType, ClickEventType>> getCommands(
-            IComponentFactory<ComponentType, StyleType, ClickEventType> componentFactory
+            ComponentFactory<ComponentType, StyleType, ClickEventType> componentFactory
     ) {
         return List.of(
                 new StartCommand<>(this, apiClient, componentFactory)
@@ -151,7 +151,7 @@ public abstract class CommonPlugin {
             > void registerCommands(
             CommandDispatcher<T> dispatcher,
             BuildContext<T, ComponentType> context,
-            IComponentFactory<ComponentType, StyleType, ClickEventType> componentFactory
+            ComponentFactory<ComponentType, StyleType, ClickEventType> componentFactory
     ) {
         Constants.LOG.info("Registering command exaroton");
         var builder = LiteralArgumentBuilder.<T>literal("exaroton");
