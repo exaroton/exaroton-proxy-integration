@@ -7,11 +7,11 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 /**
  * A platform-agnostic command
  */
-public abstract class Command {
+public abstract class Command<CommonType extends CommonPlugin> {
     /**
      * The plugin
      */
-    protected final CommonPlugin plugin;
+    protected final CommonType plugin;
     /**
      * The exaroton API client
      */
@@ -22,7 +22,7 @@ public abstract class Command {
      * @param plugin The plugin
      * @param apiClient The exaroton API client
      */
-    public Command(CommonPlugin plugin, ExarotonClient apiClient) {
+    public Command(CommonType plugin, ExarotonClient apiClient) {
         this.plugin = plugin;
         this.apiClient = apiClient;
     }

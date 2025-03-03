@@ -15,7 +15,7 @@ public class BungeePlugin extends Plugin {
         Services.setClassLoader(BungeePlugin.class.getClassLoader());
     }
 
-    protected CommonPlugin commonPlugin = new CommonPlugin();
+    protected CommonProxyPlugin commonPlugin = new ProxyPluginImpl(this);
     protected BungeeAudiences adventure;
     protected CommandDispatcher<CommandSender> dispatcher;
 

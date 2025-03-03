@@ -1,5 +1,6 @@
 package com.exaroton.proxy;
 
+import com.exaroton.proxy.servers.proxy.IProxyServerManager;
 import com.google.inject.Inject;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.velocitypowered.api.command.BrigadierCommand;
@@ -14,7 +15,7 @@ import com.exaroton.proxy.platform.services.VelocityPlatformHelper;
 
 import java.nio.file.Path;
 
-public class VelocityPlugin extends CommonPlugin {
+public class VelocityPlugin extends CommonProxyPlugin {
     static {
         Services.setClassLoader(VelocityPlugin.class.getClassLoader());
     }
@@ -48,5 +49,10 @@ public class VelocityPlugin extends CommonPlugin {
         for (var command : getCommands()) {
             commandManager.register(commandMeta, new BrigadierCommand(command.build(context, builder)));
         }
+    }
+
+    @Override
+    protected IProxyServerManager getProxyServerManager() {
+        return new VelocityProxyServerManager(proxy);
     }
 }

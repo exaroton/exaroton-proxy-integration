@@ -5,6 +5,7 @@ import com.exaroton.api.ExarotonClient;
 import com.exaroton.api.server.Server;
 import com.exaroton.api.server.ServerStatus;
 import com.exaroton.proxy.CommonPlugin;
+import com.exaroton.proxy.CommonProxyPlugin;
 import com.exaroton.proxy.Constants;
 import com.exaroton.proxy.servers.WaitForStatusSubscriber;
 import com.mojang.brigadier.context.CommandContext;
@@ -22,7 +23,7 @@ public class StartCommand extends ServerCommand {
      * @param plugin    The plugin
      * @param apiClient The exaroton API client
      */
-    public StartCommand(CommonPlugin plugin, ExarotonClient apiClient) {
+    public StartCommand(CommonProxyPlugin plugin, ExarotonClient apiClient) {
         super(plugin, apiClient, "start", Permission.START);
     }
 

@@ -4,6 +4,7 @@ import com.exaroton.api.APIException;
 import com.exaroton.api.ExarotonClient;
 import com.exaroton.api.server.Server;
 import com.exaroton.proxy.CommonPlugin;
+import com.exaroton.proxy.CommonProxyPlugin;
 import com.exaroton.proxy.Constants;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -21,7 +22,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * A command for server-related actions
  */
-public abstract class ServerCommand extends Command {
+public abstract class ServerCommand extends Command<CommonProxyPlugin> {
     protected static final String ARGUMENT_SERVER = "server";
 
     protected final String name;
@@ -35,7 +36,7 @@ public abstract class ServerCommand extends Command {
      * @param name             The name of the subcommand
      * @param permission       The required permission to execute the command
      */
-    public ServerCommand(CommonPlugin plugin,
+    public ServerCommand(CommonProxyPlugin plugin,
                          ExarotonClient apiClient,
                          String name,
                          Permission permission) {
