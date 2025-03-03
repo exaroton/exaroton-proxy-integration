@@ -48,7 +48,7 @@ public class WaitForStatusSubscriber extends ServerStatusSubscriber {
                 case ServerStatus.ONLINE:
                     status = Component.text("online", Constants.EXAROTON_GREEN);
                     break;
-                case ServerStatus.STARTING:
+                case ServerStatus.OFFLINE:
                     status = Component.text("offline", NamedTextColor.RED);
                     break;
                 default:

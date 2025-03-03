@@ -37,7 +37,9 @@ public class CompositeStatusSubscriber extends ServerStatusSubscriber {
      * @param subscriber subscriber
      */
     public void addSubscriber(ServerStatusSubscriber subscriber) {
-        subscribers.add(subscriber);
+        synchronized (subscribers) {
+            subscribers.add(subscriber);
+        }
     }
 
     /**
@@ -46,11 +48,13 @@ public class CompositeStatusSubscriber extends ServerStatusSubscriber {
      * @param subscriber subscriber
      */
     public void removeSubscriber(ServerStatusSubscriber subscriber) {
-        subscribers.remove(subscriber);
+        synchronized (subscribers) {
+            subscribers.remove(subscriber);
 
-        // unsubscribe if only the server cache is left
-        if (subscribers.stream().allMatch(s -> s instanceof ServerCache)) {
-            server.unsubscribe();
+            // unsubscribe if only the server cache is left
+            if (subscribers.stream().allMatch(s -> s instanceof ServerCache)) {
+                server.unsubscribe();
+            }
         }
     }
 
@@ -59,13 +63,17 @@ public class CompositeStatusSubscriber extends ServerStatusSubscriber {
      * @return all subscribers
      */
     public Collection<ServerStatusSubscriber> getSubscribers() {
-        return new HashSet<>(subscribers);
+        synchronized (subscribers) {
+            return new HashSet<>(subscribers);
+        }
     }
 
     @Override
     public void statusUpdate(Server oldServer, Server newServer) {
-        for (ServerStatusSubscriber subscriber : subscribers) {
-            subscriber.statusUpdate(oldServer, newServer);
+        synchronized (subscribers) {
+            for (ServerStatusSubscriber subscriber : subscribers) {
+                subscriber.statusUpdate(oldServer, newServer);
+            }
         }
     }
 }
