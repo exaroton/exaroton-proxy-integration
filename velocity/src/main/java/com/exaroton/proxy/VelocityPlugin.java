@@ -9,16 +9,16 @@ import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.PluginMessageEvent;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
-import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.exaroton.proxy.commands.VelocityBuildContext;
 import com.exaroton.proxy.platform.Services;
 import com.exaroton.proxy.platform.services.VelocityPlatformHelper;
+import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 
 import java.nio.file.Path;
 
-public class VelocityPlugin extends CommonProxyPlugin<Player> {
+public class VelocityPlugin extends CommonProxyPlugin<ServerConnection> {
     static {
         Services.setClassLoader(VelocityPlugin.class.getClassLoader());
     }
@@ -60,8 +60,8 @@ public class VelocityPlugin extends CommonProxyPlugin<Player> {
     }
 
     @Override
-    protected void executeCommand(Player source, String[] args) {
-        proxy.getCommandManager().executeAsync(source, "exaroton" + " " + String.join(" ", args));
+    protected void executeCommand(ServerConnection source, String[] args) {
+        proxy.getCommandManager().executeAsync(new ServerConnectionCommandSource(source), "exaroton" + " " + String.join(" ", args));
     }
 
     @Override
@@ -71,8 +71,8 @@ public class VelocityPlugin extends CommonProxyPlugin<Player> {
 
     @Subscribe
     public void onPluginMessage(PluginMessageEvent event) {
-        if (event.getTarget() instanceof Player) {
-            handleMessage(event.getIdentifier().getId(), (Player) event.getSource(), event.getData());
+        if (event.getSource() instanceof ServerConnection) {
+            handleMessage(event.getIdentifier().getId(), (ServerConnection) event.getSource(), event.getData());
         }
     }
 }
