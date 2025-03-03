@@ -4,9 +4,6 @@ import com.exaroton.proxy.BukkitPlugin;
 import net.kyori.adventure.audience.Audience;
 import org.bukkit.command.CommandSender;
 
-import java.nio.file.Path;
-import java.util.Collection;
-
 /**
  * Bukkit Command Sender Accessor
  */
@@ -28,16 +25,6 @@ public class BukkitCommandSenderAccessor extends CommandSourceAccessor {
     @Override
     public boolean hasPermission(Permission permission) {
         return commandSender.hasPermission(permission.node());
-    }
-
-    @Override
-    public Path getRootDirectory() {
-        return Path.of(".");
-    }
-
-    @Override
-    public Collection<LogDirectory> getLogDirectories() {
-        return LogDirectory.getVanillaLogDirectories(getRootDirectory());
     }
 
     @Override

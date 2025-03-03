@@ -3,10 +3,6 @@ package com.exaroton.proxy.commands;
 import com.velocitypowered.api.command.CommandSource;
 import net.kyori.adventure.audience.Audience;
 
-import java.nio.file.Path;
-import java.util.Collection;
-import java.util.List;
-
 public class VelocityCommandSourceAccessor extends CommandSourceAccessor {
     /**
      * The original velocity command source
@@ -25,18 +21,6 @@ public class VelocityCommandSourceAccessor extends CommandSourceAccessor {
     @Override
     public boolean hasPermission(Permission permission) {
         return source.hasPermission(permission.node());
-    }
-
-    @Override
-    public Path getRootDirectory() {
-        return Path.of(".");
-    }
-
-    @Override
-    public Collection<LogDirectory> getLogDirectories() {
-        return List.of(
-                new LogDirectory(getRootDirectory().resolve("logs"), LogType.LOG)
-        );
     }
 
     @Override
