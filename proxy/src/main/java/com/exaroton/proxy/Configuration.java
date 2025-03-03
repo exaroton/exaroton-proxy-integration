@@ -27,7 +27,7 @@ public class Configuration {
             SerdeSkipDeserializingIf.SkipDeIf.IS_NULL,
             SerdeSkipDeserializingIf.SkipDeIf.IS_EMPTY
     })
-    AutoList autoStartServers;
+    AutoList autoStartServers = new AutoList();
 
     @SerdeComment(" Automatically stop servers when the proxy stops")
     @SerdeSkipDeserializingIf({
@@ -35,7 +35,7 @@ public class Configuration {
             SerdeSkipDeserializingIf.SkipDeIf.IS_NULL,
             SerdeSkipDeserializingIf.SkipDeIf.IS_EMPTY
     })
-    AutoList autoStopServers;
+    AutoList autoStopServers = new AutoList();
 
     public static class AutoList {
         @SerdeComment(" Enable or disable this feature")

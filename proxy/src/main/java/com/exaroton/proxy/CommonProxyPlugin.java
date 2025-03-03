@@ -101,15 +101,18 @@ public abstract class CommonProxyPlugin extends CommonPlugin {
     protected void migrateOldConfigFields() {
         for (Map.Entry<String, String> entry : Map.of(
                 "watch-servers", "watchServers",
-                "auto-start", "autoStart",
-                "auto-stop", "autoStop"
+                "auto-start", "autoStartServers",
+                "auto-stop", "autoStopServers"
         ).entrySet()) {
             String oldKey = entry.getKey();
             String newKey = entry.getValue();
 
             if (configFile.get(newKey) == null) {
-                configFile.set(newKey, configFile.get(oldKey));
-                configFile.remove(oldKey);
+                Object value = configFile.get(oldKey);
+                if (value != null) {
+                    configFile.set(newKey, configFile.get(oldKey));
+                    configFile.remove(oldKey);
+                }
             }
         }
     }
@@ -120,7 +123,10 @@ public abstract class CommonProxyPlugin extends CommonPlugin {
 
     protected void onConfigLoaded(boolean log) {
         ObjectDeserializer.standard().deserializeFields(configFile, config);
-        apiClient.setAPIToken(config.apiToken);
+
+        if (apiClient != null) {
+            apiClient.setAPIToken(config.apiToken);
+        }
 
         if (log) {
             Constants.LOG.info("Reloaded configuration.");
