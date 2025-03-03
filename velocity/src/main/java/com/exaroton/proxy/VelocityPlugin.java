@@ -6,16 +6,19 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.velocitypowered.api.command.BrigadierCommand;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.connection.PluginMessageEvent;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
+import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.exaroton.proxy.commands.VelocityBuildContext;
 import com.exaroton.proxy.platform.Services;
 import com.exaroton.proxy.platform.services.VelocityPlatformHelper;
+import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 
 import java.nio.file.Path;
 
-public class VelocityPlugin extends CommonProxyPlugin {
+public class VelocityPlugin extends CommonProxyPlugin<Player> {
     static {
         Services.setClassLoader(VelocityPlugin.class.getClassLoader());
     }
@@ -52,7 +55,24 @@ public class VelocityPlugin extends CommonProxyPlugin {
     }
 
     @Override
+    protected void registerChannel(String channelId) {
+        proxy.getChannelRegistrar().register(MinecraftChannelIdentifier.from(channelId));
+    }
+
+    @Override
+    protected void executeCommand(Player source, String[] args) {
+        proxy.getCommandManager().executeAsync(source, "exaroton" + " " + String.join(" ", args));
+    }
+
+    @Override
     protected IProxyServerManager getProxyServerManager() {
         return new VelocityProxyServerManager(proxy);
+    }
+
+    @Subscribe
+    public void onPluginMessage(PluginMessageEvent event) {
+        if (event.getTarget() instanceof Player) {
+            handleMessage(event.getIdentifier().getId(), (Player) event.getSource(), event.getData());
+        }
     }
 }

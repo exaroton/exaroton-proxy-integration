@@ -4,6 +4,7 @@ adventure-platforms = "4.3.4"
 brigadier = "1.0.18"
 exaroton-api = { strictly = "[1.4.2, 2.0)", prefer = "1.6.2" }
 gson = "2.12.1"
+guava = "33.4.0-jre"
 hangar = "0.1.2"
 jetbrains-annotations = "26.0.2"
 minotaur = "2.8.7"
@@ -20,6 +21,7 @@ adventure-bungeecord = { module = "net.kyori:adventure-platform-bungeecord", ver
 brigadier = { module = "com.mojang:brigadier", version.ref = "brigadier" }
 exaroton-api = { module = "com.exaroton:api", version.ref = "exaroton-api" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
 jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
 nightconfig-core = { module = "com.electronwill.night-config:core", version.ref = "night-config" }
 nightconfig-toml = { module = "com.electronwill.night-config:toml", version.ref = "night-config" }
@@ -35,6 +37,6 @@ run-paper = { id = "xyz.jpenilla.run-paper", version.ref = "runtask" }
 run-velocity = { id = "xyz.jpenilla.run-velocity", version.ref = "runtask" }
 
 [bundles]
-common-impl = ["adventure-api", "brigadier", "exaroton-api", "gson", "nightconfig-core", "slf4j-api"]
+common-impl = ["adventure-api", "brigadier", "exaroton-api", "gson", "guava", "nightconfig-core", "slf4j-api"]
 platform-base = ["exaroton-api", "nightconfig-toml"]
 platform-extended = ["adventure-api", "brigadier", "slf4j-api", "slf4j-jdk14"]

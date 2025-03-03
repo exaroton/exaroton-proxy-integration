@@ -12,13 +12,18 @@ import com.exaroton.proxy.platform.Services;
 import com.exaroton.proxy.servers.ServerCache;
 import com.exaroton.proxy.servers.StatusSubscriberManager;
 import com.exaroton.proxy.servers.proxy.IProxyServerManager;
+import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteStreams;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public abstract class CommonProxyPlugin extends CommonPlugin {
+/**
+ * @param <PlayerType> player type used when executing commands
+ */
+public abstract class CommonProxyPlugin<PlayerType> extends CommonPlugin {
     protected ExarotonClient apiClient;
     protected FileConfig configFile;
     protected Configuration config = new Configuration();
@@ -46,7 +51,33 @@ public abstract class CommonProxyPlugin extends CommonPlugin {
                 + Services.platform().getPlatformName() + "/" + Services.platform().getPluginVersion());
         serverCache = new ServerCache(apiClient);
         statusSubscribers = new StatusSubscriberManager(serverCache, getProxyServerManager());
+
+        registerChannel(Constants.CHANNEL_ID);
     }
+
+    protected abstract void registerChannel(@SuppressWarnings("SameParameterValue") String channelId);
+
+    public void handleMessage(String channel, PlayerType player, byte[] data) {
+        if (!channel.equalsIgnoreCase(Constants.CHANNEL_ID)) {
+            return;
+        }
+
+        ByteArrayDataInput input = ByteStreams.newDataInput(data);
+        int length = input.readInt();
+        String[] args = new String[length];
+
+        for (int i = 0; i < length; i++) {
+            args[i] = input.readUTF();
+        }
+
+        try {
+            executeCommand(player, args);
+        } catch (Exception e) {
+            Constants.LOG.error("An error occurred while executing a command", e);
+        }
+    }
+
+    protected abstract void executeCommand(PlayerType source, String[] args);
 
     /**
      * Find a specific server
