@@ -9,12 +9,8 @@ targetCompatibility = JavaVersion.VERSION_11
 
 dependencies {
     compileOnly "net.md-5:bungeecord-api:${minor_minecraft_version}-R0.1-SNAPSHOT"
-    implementation(libs.exaroton.api)
-    implementation(libs.slf4j.api)
-    implementation(libs.slf4j.jdk14)
-    implementation(libs.nightconfig.toml)
-    implementation(libs.brigadier)
-    implementation(libs.adventure.api)
+    implementation(libs.bundles.platform.base)
+    implementation(libs.bundles.platform.extended)
     implementation(libs.adventure.bungeecord)
 }
 
