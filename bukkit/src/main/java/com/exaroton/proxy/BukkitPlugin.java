@@ -2,7 +2,6 @@ package com.exaroton.proxy;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.exaroton.proxy.commands.BukkitBrigadierCommand;
-import com.exaroton.proxy.components.AdventureComponentFactory;
 import com.exaroton.proxy.commands.BukkitBuildContext;
 import com.exaroton.proxy.platform.Services;
 import net.kyori.adventure.audience.Audience;
@@ -51,10 +50,9 @@ public class BukkitPlugin extends JavaPlugin {
     protected void registerCommands() {
         dispatcher = new CommandDispatcher<>();
         var context = new BukkitBuildContext(this);
-        var componentFactory = new AdventureComponentFactory();
 
-        commonPlugin.registerCommands(dispatcher, context, componentFactory);
-        var executor = new BukkitBrigadierCommand(this, dispatcher, context, componentFactory);
+        commonPlugin.registerCommands(dispatcher, context);
+        var executor = new BukkitBrigadierCommand(this, dispatcher, context);
         executor.register();
     }
 }

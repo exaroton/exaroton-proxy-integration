@@ -3,21 +3,11 @@ package com.exaroton.proxy.commands;
 import com.exaroton.api.ExarotonClient;
 import com.exaroton.proxy.CommonPlugin;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.exaroton.proxy.components.IComponent;
-import com.exaroton.proxy.components.ComponentFactory;
-import com.exaroton.proxy.components.IStyle;
 
 /**
  * A platform-agnostic command
- * @param <ComponentType> The type of components used on the platform
- * @param <StyleType> The type of styles used on the platform
- * @param <ClickEventType> The type of click events used on the platform
  */
-public abstract class Command<
-        ComponentType extends IComponent<ComponentType, StyleType, ClickEventType>,
-        StyleType extends IStyle<StyleType, ClickEventType>,
-        ClickEventType
-        > {
+public abstract class Command {
     /**
      * The plugin
      */
@@ -26,25 +16,15 @@ public abstract class Command<
      * The exaroton API client
      */
     protected final ExarotonClient apiClient;
-    /**
-     * A component factory
-     */
-    protected final ComponentFactory<ComponentType, StyleType, ClickEventType> componentFactory;
 
     /**
      * Create a new command
      * @param plugin The plugin
      * @param apiClient The exaroton API client
-     * @param componentFactory A component factory
      */
-    public Command(
-            CommonPlugin plugin,
-            ExarotonClient apiClient,
-            ComponentFactory<ComponentType, StyleType, ClickEventType> componentFactory
-    ) {
+    public Command(CommonPlugin plugin, ExarotonClient apiClient) {
         this.plugin = plugin;
         this.apiClient = apiClient;
-        this.componentFactory = componentFactory;
     }
 
     /**
@@ -56,7 +36,7 @@ public abstract class Command<
      * @return the built command
      */
     public abstract <T> LiteralArgumentBuilder<T> build(
-            BuildContext<T, ComponentType> buildContext,
+            BuildContext<T> buildContext,
             LiteralArgumentBuilder<T> builder
     );
 }

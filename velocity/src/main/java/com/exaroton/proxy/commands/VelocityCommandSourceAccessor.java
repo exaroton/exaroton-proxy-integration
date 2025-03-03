@@ -1,6 +1,5 @@
 package com.exaroton.proxy.commands;
 
-import com.exaroton.proxy.command.AdventureCommandSourceAccessor;
 import com.velocitypowered.api.command.CommandSource;
 import net.kyori.adventure.audience.Audience;
 
@@ -8,7 +7,7 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 
-public class VelocityCommandSourceAccessor extends AdventureCommandSourceAccessor {
+public class VelocityCommandSourceAccessor extends CommandSourceAccessor {
     /**
      * The original velocity command source
      */

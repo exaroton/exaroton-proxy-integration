@@ -1,5 +1,5 @@
 plugins {
-    id 'multiloader-adventure'
+    id 'multiloader-common'
     alias(libs.plugins.shadow)
     alias(libs.plugins.run.paper)
     alias(libs.plugins.minotaur)

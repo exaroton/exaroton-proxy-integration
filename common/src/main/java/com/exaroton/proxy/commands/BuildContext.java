@@ -1,14 +1,11 @@
 package com.exaroton.proxy.commands;
 
-import com.exaroton.proxy.components.IComponent;
-
 /**
  * A context for building commands.
  *
  * @param <T> Type of the "command source".
- * @param <ComponentType> Type of the components used in this context.
  */
-public abstract class BuildContext<T, ComponentType extends IComponent<ComponentType, ?, ?>> {
+public abstract class BuildContext<T> {
 
     /**
      * Constructs a new build context.
@@ -21,5 +18,5 @@ public abstract class BuildContext<T, ComponentType extends IComponent<Component
      * @param source The command source to map.
      * @return A command source accessor.
      */
-    public abstract ICommandSourceAccessor<ComponentType> mapSource(T source);
+    public abstract CommandSourceAccessor mapSource(T source);
 }

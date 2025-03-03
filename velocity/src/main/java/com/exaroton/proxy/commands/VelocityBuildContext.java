@@ -1,9 +1,8 @@
 package com.exaroton.proxy.commands;
 
 import com.velocitypowered.api.command.CommandSource;
-import com.exaroton.proxy.components.AdventureComponent;
 
-public class VelocityBuildContext extends BuildContext<CommandSource, AdventureComponent> {
+public class VelocityBuildContext extends BuildContext<CommandSource> {
     /**
      * Constructs a new velocity build context.
      */

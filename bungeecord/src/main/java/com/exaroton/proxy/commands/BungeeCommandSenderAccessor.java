@@ -1,6 +1,5 @@
 package com.exaroton.proxy.commands;
 
-import com.exaroton.proxy.command.AdventureCommandSourceAccessor;
 import com.exaroton.proxy.BungeePlugin;
 import net.kyori.adventure.audience.Audience;
 import net.md_5.bungee.api.CommandSender;
@@ -10,9 +9,9 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * A BungeeCord implementation of {@link ICommandSourceAccessor}.
+ * A BungeeCord implementation of {@link CommandSourceAccessor}.
  */
-public class BungeeCommandSenderAccessor extends AdventureCommandSourceAccessor {
+public class BungeeCommandSenderAccessor extends CommandSourceAccessor {
     private final BungeePlugin plugin;
     private final CommandSender sender;
 

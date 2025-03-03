@@ -3,7 +3,6 @@ package com.exaroton.proxy;
 import com.mojang.brigadier.CommandDispatcher;
 import com.exaroton.proxy.commands.BungeeBrigadierCommand;
 import com.exaroton.proxy.commands.BungeeBuildContext;
-import com.exaroton.proxy.components.AdventureComponentFactory;
 import com.exaroton.proxy.platform.Services;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
@@ -51,11 +50,10 @@ public class BungeePlugin extends Plugin {
     protected void registerCommands() {
         dispatcher = new CommandDispatcher<>();
         var context = new BungeeBuildContext(this);
-        var componentFactory = new AdventureComponentFactory();
 
-        commonPlugin.registerCommands(dispatcher, context, componentFactory);
+        commonPlugin.registerCommands(dispatcher, context);
 
-        var command = new BungeeBrigadierCommand(dispatcher, context, componentFactory);
+        var command = new BungeeBrigadierCommand(dispatcher, context);
         this.getProxy().getPluginManager().registerCommand(this, command);
     }
 }

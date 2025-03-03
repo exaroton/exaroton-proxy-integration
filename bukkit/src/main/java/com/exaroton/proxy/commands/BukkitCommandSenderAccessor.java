@@ -1,6 +1,5 @@
 package com.exaroton.proxy.commands;
 
-import com.exaroton.proxy.command.AdventureCommandSourceAccessor;
 import com.exaroton.proxy.BukkitPlugin;
 import net.kyori.adventure.audience.Audience;
 import org.bukkit.command.CommandSender;
@@ -8,7 +7,7 @@ import org.bukkit.command.CommandSender;
 import java.nio.file.Path;
 import java.util.Collection;
 
-public class BukkitCommandSenderAccessor extends AdventureCommandSourceAccessor {
+public class BukkitCommandSenderAccessor extends CommandSourceAccessor {
     protected final BukkitPlugin plugin;
     protected final CommandSender commandSender;
 

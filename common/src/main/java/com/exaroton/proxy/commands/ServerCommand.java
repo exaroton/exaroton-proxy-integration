@@ -5,15 +5,13 @@ import com.exaroton.api.ExarotonClient;
 import com.exaroton.api.server.Server;
 import com.exaroton.proxy.CommonPlugin;
 import com.exaroton.proxy.Constants;
-import com.exaroton.proxy.components.IComponent;
-import com.exaroton.proxy.components.ComponentFactory;
-import com.exaroton.proxy.components.IStyle;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import net.kyori.adventure.text.Component;
 
 import java.util.Collection;
 import java.util.List;
@@ -23,11 +21,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * A command for server-related actions
  */
-public abstract class ServerCommand<
-        ComponentType extends IComponent<ComponentType, StyleType, ClickEventType>,
-        StyleType extends IStyle<StyleType, ClickEventType>,
-        ClickEventType
-        > extends Command<ComponentType, StyleType, ClickEventType> {
+public abstract class ServerCommand extends Command {
     protected static final String ARGUMENT_SERVER = "server";
 
     protected final String name;
@@ -38,28 +32,26 @@ public abstract class ServerCommand<
      *
      * @param plugin           The plugin
      * @param apiClient        The exaroton API client
-     * @param componentFactory A component factory
      * @param name             The name of the subcommand
      * @param permission       The required permission to execute the command
      */
     public ServerCommand(CommonPlugin plugin,
                          ExarotonClient apiClient,
-                         ComponentFactory<ComponentType, StyleType, ClickEventType> componentFactory,
                          String name,
                          Permission permission) {
-        super(plugin, apiClient, componentFactory);
+        super(plugin, apiClient);
         this.name = name;
         this.permission = permission;
     }
 
     @Override
-    public <T> LiteralArgumentBuilder<T> build(BuildContext<T, ComponentType> buildContext, LiteralArgumentBuilder<T> builder) {
+    public <T> LiteralArgumentBuilder<T> build(BuildContext<T> buildContext, LiteralArgumentBuilder<T> builder) {
         return builder.then(LiteralArgumentBuilder.<T>literal(name)
                 .requires(source -> buildContext.mapSource(source).hasPermission(permission))
                 .then(RequiredArgumentBuilder.<T, String>argument(ARGUMENT_SERVER, StringArgumentType.string())
                         .suggests(this::suggestServerName)
                         .executes(context -> {
-                            ICommandSourceAccessor<ComponentType> source = buildContext.mapSource(context.getSource());
+                            CommandSourceAccessor source = buildContext.mapSource(context.getSource());
                             String serverInput = context.getArgument(ARGUMENT_SERVER, String.class);
 
                             Optional<Server> server;
@@ -67,15 +59,13 @@ public abstract class ServerCommand<
                                 server = this.plugin.findServer(serverInput);
 
                                 if (server.isEmpty()) {
-                                    source.sendFailure(componentFactory.literal("Failed to find a server with the name " + serverInput));
+                                    source.sendFailure(Component.text("Failed to find a server with the name " + serverInput));
                                     return 1;
                                 }
 
                                 return execute(context, buildContext, server.get());
                             } catch (APIException e) {
-                                source.sendFailure(
-                                        componentFactory.literal("An API Error occurred. Check your log for details!")
-                                );
+                                source.sendFailure(Component.text("An API Error occurred. Check your log for details!"));
                                 return 1;
                             }
                         })
@@ -93,7 +83,7 @@ public abstract class ServerCommand<
      * @throws APIException If an API error occurred. This will be caught, logged and the user will receive a message
      */
     protected abstract <T> int execute(CommandContext<T> context,
-                                       BuildContext<T, ComponentType> buildContext,
+                                       BuildContext<T> buildContext,
                                        Server server) throws APIException;
 
     /**

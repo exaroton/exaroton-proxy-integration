@@ -3,31 +3,24 @@ package com.exaroton.proxy.servers;
 import com.exaroton.api.server.Server;
 import com.exaroton.api.server.ServerStatus;
 import com.exaroton.api.ws.subscriber.ServerStatusSubscriber;
-import com.exaroton.proxy.commands.ICommandSourceAccessor;
-import com.exaroton.proxy.components.Color;
-import com.exaroton.proxy.components.IComponent;
-import com.exaroton.proxy.components.ComponentFactory;
-import com.exaroton.proxy.components.IStyle;
+import com.exaroton.proxy.Constants;
+import com.exaroton.proxy.commands.CommandSourceAccessor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.concurrent.CompletableFuture;
 
-public class WaitForStatusSubscriber<
-        ComponentType extends IComponent<ComponentType, StyleType, ?>,
-        StyleType extends IStyle<StyleType, ?>
-        > extends ServerStatusSubscriber {
+public class WaitForStatusSubscriber extends ServerStatusSubscriber {
     private final CompositeStatusSubscriber parent;
-    private final ICommandSourceAccessor<ComponentType> source;
-    private final ComponentFactory<ComponentType, StyleType, ?> components;
+    private final CommandSourceAccessor source;
     private final Integer targetStatus;
     private CompletableFuture<Server> future;
 
     public WaitForStatusSubscriber(CompositeStatusSubscriber parent,
-                                   ICommandSourceAccessor<ComponentType> source,
-                                   ComponentFactory<ComponentType, StyleType, ?> components,
+                                   CommandSourceAccessor source,
                                    Integer targetStatus) {
         this.parent = parent;
         this.source = source;
-        this.components = components;
         this.targetStatus = targetStatus;
     }
 
@@ -49,26 +42,27 @@ public class WaitForStatusSubscriber<
         }
 
         if (oldServer.getStatus() != newServer.getStatus()) {
-            ComponentType status;
+            Component status;
 
             switch (newServer.getStatus()) {
                 case ServerStatus.ONLINE:
-                    status = components.literal("online")
-                            .style(components.style().color(Color.EXAROTON_GREEN));
+                    status = Component.text("online", Constants.EXAROTON_GREEN);
                     break;
                 case ServerStatus.STARTING:
-                    status = components.literal("offline")
-                            .style(components.style().color(Color.RED));
+                    status = Component.text("offline", NamedTextColor.RED);
                     break;
                 default:
                     return;
             }
 
-            ComponentType message = components.literal("Server ")
-                    .append(components.exarotonGreen(newServer.getAddress()))
-                    .append(components.literal(" changed status to "))
+            Component message = Component.text("Server")
+                    .appendSpace()
+                    .append(Component.text(newServer.getAddress(), Constants.EXAROTON_GREEN))
+                    .appendSpace()
+                    .append(Component.text("changed status to"))
+                    .appendSpace()
                     .append(status);
-            source.sendSuccess(message, true);
+            source.sendSuccess(message);
         }
     }
 }

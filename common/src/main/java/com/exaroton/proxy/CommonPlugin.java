@@ -12,9 +12,6 @@ import com.exaroton.proxy.servers.StatusSubscriberManager;
 import com.exaroton.proxy.servers.proxy.IProxyServerManager;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.exaroton.proxy.components.IComponent;
-import com.exaroton.proxy.components.ComponentFactory;
-import com.exaroton.proxy.components.IStyle;
 import com.exaroton.proxy.platform.Services;
 
 import java.util.Collection;
@@ -131,32 +128,17 @@ public abstract class CommonPlugin {
         }
     }
 
-    protected <
-            ComponentType extends IComponent<ComponentType, StyleType, ClickEventType>,
-            StyleType extends IStyle<StyleType, ClickEventType>,
-            ClickEventType
-            > Collection<Command<ComponentType, StyleType, ClickEventType>> getCommands(
-            ComponentFactory<ComponentType, StyleType, ClickEventType> componentFactory
-    ) {
+    protected Collection<Command> getCommands() {
         return List.of(
-                new StartCommand<>(this, apiClient, componentFactory)
+                new StartCommand(this, apiClient)
         );
     }
 
-    protected <
-            T,
-            ComponentType extends IComponent<ComponentType, StyleType, ClickEventType>,
-            StyleType extends IStyle<StyleType, ClickEventType>,
-            ClickEventType
-            > void registerCommands(
-            CommandDispatcher<T> dispatcher,
-            BuildContext<T, ComponentType> context,
-            ComponentFactory<ComponentType, StyleType, ClickEventType> componentFactory
-    ) {
+    protected <T> void registerCommands(CommandDispatcher<T> dispatcher, BuildContext<T> context) {
         Constants.LOG.info("Registering command exaroton");
         var builder = LiteralArgumentBuilder.<T>literal("exaroton");
 
-        for (var command : getCommands(componentFactory)) {
+        for (var command : getCommands()) {
             dispatcher.register(command.build(context, builder));
         }
     }

@@ -3,10 +3,6 @@ package com.exaroton.proxy.commands;
 import com.mojang.brigadier.CommandDispatcher;
 import com.exaroton.proxy.Constants;
 import com.exaroton.proxy.BukkitPlugin;
-import com.exaroton.proxy.components.AdventureComponent;
-import com.exaroton.proxy.components.AdventureStyle;
-import com.exaroton.proxy.components.ComponentFactory;
-import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.command.*;
 import org.bukkit.command.Command;
 import org.jetbrains.annotations.NotNull;
@@ -16,18 +12,17 @@ import java.util.List;
 
 public class BukkitBrigadierCommand implements CommandExecutor, TabCompleter {
     private final BukkitPlugin plugin;
-    private final BrigadierExecutor<CommandSender, AdventureComponent, AdventureStyle, ClickEvent> executor;
+    private final BrigadierExecutor<CommandSender> executor;
     private final CommandDispatcher<CommandSender> dispatcher;
 
     public BukkitBrigadierCommand(
             BukkitPlugin plugin,
             CommandDispatcher<CommandSender> dispatcher,
-            BuildContext<CommandSender, AdventureComponent> buildContext,
-            ComponentFactory<AdventureComponent, AdventureStyle, ClickEvent> componentFactory
+            BuildContext<CommandSender> buildContext
     ) {
         this.plugin = plugin;
         this.dispatcher = dispatcher;
-        this.executor = new BrigadierExecutor<>(dispatcher, buildContext, componentFactory);
+        this.executor = new BrigadierExecutor<>(dispatcher, buildContext);
     }
 
     @Override

@@ -4,9 +4,9 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.exaroton.proxy.Constants;
-import com.exaroton.proxy.components.IComponent;
-import com.exaroton.proxy.components.ComponentFactory;
-import com.exaroton.proxy.components.IStyle;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.TextDecoration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,16 +15,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * A Utility class to execute and tab complete brigadier commands on platforms that do not natively support brigadier
  * @param <T> The command source type
- * @param <ComponentType> The component type of the platform
- * @param <StyleType> The style type of the platform
- * @param <ClickEventType> The click event type of the platform
  */
-public class BrigadierExecutor<
-        T,
-        ComponentType extends IComponent<ComponentType, StyleType, ClickEventType>,
-        StyleType extends IStyle<StyleType, ClickEventType>,
-        ClickEventType
-        > {
+public class BrigadierExecutor<T> {
     /**
      * The brigadier command dispatcher
      */
@@ -33,25 +25,16 @@ public class BrigadierExecutor<
     /**
      * The build context for the command
      */
-    protected final BuildContext<T, ComponentType> context;
-
-    /**
-     * The component factory for the platform
-     */
-    protected final ComponentFactory<ComponentType, StyleType, ClickEventType> componentFactory;
+    protected final BuildContext<T> context;
 
     /**
      * Create a new brigadier executor
      * @param dispatcher The brigadier command dispatcher
      * @param context The build context for the command
-     * @param componentFactory The component factory for the platform
      */
-    public BrigadierExecutor(CommandDispatcher<T> dispatcher,
-                             BuildContext<T, ComponentType> context,
-                             ComponentFactory<ComponentType, StyleType, ClickEventType> componentFactory) {
+    public BrigadierExecutor(CommandDispatcher<T> dispatcher, BuildContext<T> context) {
         this.dispatcher = dispatcher;
         this.context = context;
-        this.componentFactory = componentFactory;
     }
 
     /**
@@ -65,16 +48,11 @@ public class BrigadierExecutor<
             var parse = parse(command, args, source);
             dispatcher.execute(parse);
         } catch (CommandSyntaxException e) {
-            var contextMessage = componentFactory.literal(exceptionContext(e))
-                    .style(componentFactory.style().underlined());
-            var error = componentFactory
-                    .literal(e.getType().toString())
-                    .append("\n")
+            var contextMessage = Component.text(exceptionContext(e), Style.style(TextDecoration.UNDERLINED));
+            var error = Component.text(e.getType().toString())
+                    .appendNewline()
                     .append(contextMessage)
-                    .append(componentFactory
-                            .literal("<--[HERE]")
-                            .style(componentFactory.style().italic())
-                    );
+                    .append(Component.text("<--[HERE]", Style.style(TextDecoration.ITALIC)));
 
             context.mapSource(source).sendFailure(error);
         }

@@ -9,7 +9,6 @@ import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.exaroton.proxy.commands.VelocityBuildContext;
-import com.exaroton.proxy.components.AdventureComponentFactory;
 import com.exaroton.proxy.platform.Services;
 import com.exaroton.proxy.platform.services.VelocityPlatformHelper;
 
@@ -39,7 +38,6 @@ public class VelocityPlugin extends CommonPlugin {
         Constants.LOG.info("Registering commands");
         var commandManager = proxy.getCommandManager();
 
-        var componentFactory = new AdventureComponentFactory();
         var commandMeta = commandManager.metaBuilder("exaroton")
                 .plugin(this)
                 .build();
@@ -47,7 +45,7 @@ public class VelocityPlugin extends CommonPlugin {
         var context = new VelocityBuildContext();
         var builder = LiteralArgumentBuilder.<CommandSource>literal("exaroton");
 
-        for (var command : getCommands(componentFactory)) {
+        for (var command : getCommands()) {
             commandManager.register(commandMeta, new BrigadierCommand(command.build(context, builder)));
         }
     }

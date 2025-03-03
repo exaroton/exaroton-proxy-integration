@@ -1,13 +1,12 @@
 package com.exaroton.proxy.commands;
 
 import com.exaroton.proxy.BungeePlugin;
-import com.exaroton.proxy.components.AdventureComponent;
 import net.md_5.bungee.api.CommandSender;
 
 /**
  * A BuildContext implementation for BungeeCord
  */
-public class BungeeBuildContext extends BuildContext<CommandSender, AdventureComponent> {
+public class BungeeBuildContext extends BuildContext<CommandSender> {
     /**
      * The plugin instance
      */
@@ -23,7 +22,7 @@ public class BungeeBuildContext extends BuildContext<CommandSender, AdventureCom
     }
 
     @Override
-    public ICommandSourceAccessor<AdventureComponent> mapSource(CommandSender source) {
+    public CommandSourceAccessor mapSource(CommandSender source) {
         return new BungeeCommandSenderAccessor(plugin, source);
     }
 }
