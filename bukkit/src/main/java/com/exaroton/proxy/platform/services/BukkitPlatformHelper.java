@@ -9,9 +9,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.regex.Pattern;
 
+/**
+ * Bukkit platform helper
+ */
 public class BukkitPlatformHelper implements IPlatformHelper {
     private static final Pattern BUKKIT_VERSION_PATTERN = Pattern.compile("(.*)-R\\d+\\.\\d+.*");
-    protected final JavaPlugin plugin = JavaPlugin.getPlugin(BukkitPlugin.class);
+    private final JavaPlugin plugin = JavaPlugin.getPlugin(BukkitPlugin.class);
 
     @Override
     public String getPlatformName() {

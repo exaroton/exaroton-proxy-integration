@@ -8,9 +8,16 @@ import net.md_5.bungee.api.config.ServerInfo;
 import java.net.InetSocketAddress;
 import java.util.Optional;
 
+/**
+ * Bungee implementation of the proxy server manager
+ */
 public class BungeeProxyServerManager implements IProxyServerManager {
     private final ProxyServer proxy;
 
+    /**
+     * Create a new bungee proxy server manager
+     * @param proxy
+     */
     public BungeeProxyServerManager(ProxyServer proxy) {
         this.proxy = proxy;
     }

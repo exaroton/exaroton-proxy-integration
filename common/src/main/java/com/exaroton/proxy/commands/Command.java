@@ -6,6 +6,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 
 /**
  * A platform-agnostic command
+ * @param <CommonType> The plugin type
  */
 public abstract class Command<CommonType extends CommonPlugin> {
     /**

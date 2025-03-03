@@ -12,6 +12,11 @@ public class BungeeBrigadierCommand extends Command implements TabExecutor {
 
     private final BrigadierExecutor<CommandSender> executor;
 
+    /**
+     * Create a new BungeeBrigadierCommand
+     * @param dispatcher The Brigadier command dispatcher
+     * @param buildContext The build context for the command
+     */
     public BungeeBrigadierCommand(
             CommandDispatcher<CommandSender> dispatcher,
             BuildContext<CommandSender> buildContext

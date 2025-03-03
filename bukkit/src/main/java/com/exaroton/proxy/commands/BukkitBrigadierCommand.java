@@ -10,11 +10,20 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+/**
+ * Brigadier wrapper for Bukkit commands
+ */
 public class BukkitBrigadierCommand implements CommandExecutor, TabCompleter {
     private final BukkitPlugin plugin;
     private final BrigadierExecutor<CommandSender> executor;
     private final CommandDispatcher<CommandSender> dispatcher;
 
+    /**
+     * Create a new Brigadier command
+     * @param plugin The plugin
+     * @param dispatcher The command dispatcher
+     * @param buildContext The build context
+     */
     public BukkitBrigadierCommand(
             BukkitPlugin plugin,
             CommandDispatcher<CommandSender> dispatcher,
