@@ -12,9 +12,7 @@ targetCompatibility = JavaVersion.VERSION_17
 dependencies {
     compileOnly(libs.velocity.api)
     annotationProcessor(libs.velocity.api)
-    implementation(libs.exaroton.api) {
-        exclude group: 'com.google.code.gson', module: 'gson'
-    }
+    implementation(libs.exaroton.api)
     implementation(libs.nightconfig.toml)
 }
 
@@ -26,6 +24,7 @@ tasks {
     shadowJar {
         relocate("com.electronwill.nightconfig", "com.exaroton.nightconfig")
         dependsOn("javadocJar", "sourcesJar")
+        exclude('com/google/gson/**')
     }
 }
 

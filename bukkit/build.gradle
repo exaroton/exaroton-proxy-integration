@@ -7,9 +7,7 @@ plugins {
 
 dependencies {
     compileOnly "org.spigotmc:spigot-api:${minor_minecraft_version}-R0.1-SNAPSHOT"
-    implementation(libs.exaroton.api) {
-        exclude group: 'com.google.code.gson', module: 'gson'
-    }
+    implementation(libs.exaroton.api)
     implementation(libs.slf4j.api)
     implementation(libs.slf4j.jdk14)
     implementation(libs.nightconfig.toml)
@@ -27,6 +25,7 @@ tasks {
         relocate("org.slf4j", "com.exaroton.slf4j")
         relocate("com.electronwill.nightconfig", "com.exaroton.nightconfig")
         dependsOn("javadocJar", "sourcesJar")
+        exclude 'com/google/gson/**'
     }
 }
 
