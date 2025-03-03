@@ -13,5 +13,6 @@ plugins {
 rootProject.name = 'exaroton-proxy-plugin'
 include('common')
 include('bukkit')
+include('proxy')
 include('velocity')
 include('bungeecord')

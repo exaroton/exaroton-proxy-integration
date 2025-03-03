@@ -78,13 +78,13 @@ create an issue for discussion first, to avoid wasting time on something that mi
 
 ### Modules
 
-| Module     | Description                                                                    | Parent Module |
-|------------|--------------------------------------------------------------------------------|---------------|
-| common     | Code shared between all platforms                                              |               |
-| adventure  | Code shared between all platforms that use the adventure component library     | common        |
-| bukkit     | Bukkit plugin implementation                                                   | adventure     |
-| bungeecord | BungeeCord plugin implementation                                               | adventure     |
-| velocity   | Velocity plugin implementation                                                 | adventure     |
+| Module     | Description                         | Parent Module |
+|------------|-------------------------------------|---------------|
+| common     | Code shared between all platforms   |               |
+| proxy      | Code shared between proxy platforms | common        |
+| bukkit     | Bukkit plugin implementation        | common        |
+| bungeecord | BungeeCord plugin implementation    | proxy         |
+| velocity   | Velocity plugin implementation      | proxy         |
 
 ### Building
 To build all modules run `./gradlew buildAll`. Unless specified below all other modules use the `build` task.

@@ -1,0 +1,46 @@
+// multiloader-common plus sources shared for all proxies. Used by bungeecord and velocity
+
+plugins {
+    id 'multiloader-common'
+}
+
+configurations {
+    proxyJava{
+        canBeResolved = true
+    }
+    proxyResources{
+        canBeResolved = true
+    }
+}
+
+dependencies {
+    compileOnly(project(':proxy')) {
+        capabilities {
+            requireCapability "$group:$plugin_id-proxy"
+        }
+    }
+    proxyJava project(path: ':proxy', configuration: 'proxyJava')
+    proxyResources project(path: ':proxy', configuration: 'proxyResources')
+}
+
+tasks.named('compileJava', JavaCompile) {
+    dependsOn(configurations.proxyJava)
+    source(configurations.proxyJava)
+}
+
+processResources {
+    dependsOn(configurations.proxyResources)
+    from(configurations.proxyResources)
+}
+
+tasks.named('javadoc', Javadoc).configure {
+    dependsOn(configurations.proxyJava)
+    source(configurations.proxyJava)
+}
+
+tasks.named('sourcesJar', Jar) {
+    dependsOn(configurations.proxyJava)
+    from(configurations.proxyJava)
+    dependsOn(configurations.proxyResources)
+    from(configurations.proxyResources)
+}

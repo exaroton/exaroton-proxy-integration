@@ -1,5 +1,5 @@
 plugins {
-    id 'multiloader-common'
+    id 'multiloader-proxy'
     alias(libs.plugins.shadow)
     alias(libs.plugins.minotaur)
 }
