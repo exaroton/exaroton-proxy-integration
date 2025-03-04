@@ -21,7 +21,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * A command for server-related actions
  */
-public abstract class ServerCommand extends Command<CommonProxyPlugin<?>> {
+public abstract class ServerCommand extends Command<CommonProxyPlugin> {
     protected static final String ARGUMENT_SERVER = "server";
 
     protected final String name;
@@ -35,7 +35,7 @@ public abstract class ServerCommand extends Command<CommonProxyPlugin<?>> {
      * @param name             The name of the subcommand
      * @param permission       The required permission to execute the command
      */
-    public ServerCommand(CommonProxyPlugin<?> plugin,
+    public ServerCommand(CommonProxyPlugin plugin,
                          ExarotonClient apiClient,
                          String name,
                          Permission permission) {

@@ -1,9 +1,8 @@
 package com.exaroton.proxy;
 
 import com.exaroton.proxy.servers.proxy.IProxyServerManager;
-import net.md_5.bungee.api.connection.Server;
 
-public class ProxyPluginImpl extends CommonProxyPlugin<Server> {
+public class ProxyPluginImpl extends CommonProxyPlugin {
 
     private final BungeePlugin bungeePlugin;
     private MessageControllerImpl messageController;

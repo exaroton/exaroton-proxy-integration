@@ -12,11 +12,10 @@ import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
-import com.velocitypowered.api.proxy.ServerConnection;
 
 import java.nio.file.Path;
 
-public class VelocityPlugin extends CommonProxyPlugin<ServerConnection> {
+public class VelocityPlugin extends CommonProxyPlugin {
     static {
         Services.setClassLoader(VelocityPlugin.class.getClassLoader());
     }

@@ -8,7 +8,6 @@ import com.exaroton.api.ExarotonClient;
 import com.exaroton.api.server.Server;
 import com.exaroton.proxy.commands.Command;
 import com.exaroton.proxy.commands.StartCommand;
-import com.exaroton.proxy.network.ProxyMessageController;
 import com.exaroton.proxy.platform.Services;
 import com.exaroton.proxy.servers.ServerCache;
 import com.exaroton.proxy.servers.StatusSubscriberManager;
@@ -19,13 +18,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public abstract class CommonProxyPlugin<ServerConnection> extends CommonPlugin {
+public abstract class CommonProxyPlugin extends CommonPlugin {
     protected ExarotonClient apiClient;
     protected FileConfig configFile;
     protected Configuration config = new Configuration();
     protected ServerCache serverCache;
     protected StatusSubscriberManager statusSubscribers;
-    protected ProxyMessageController<ServerConnection> messageController;
 
     public void init() {
         configFile = Services.platform().getConfig()
