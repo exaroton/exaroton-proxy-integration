@@ -13,7 +13,7 @@ public abstract class CommandSourceAccessor {
      * @param permission The permission to check.
      * @return {@code true} if the source has the permission, {@code false} otherwise.
      */
-    public abstract boolean hasPermission(Permission permission);
+    public abstract boolean hasPermission(String permission);
 
     /**
      * Get an adventure audience for the command source.

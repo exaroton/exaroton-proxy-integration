@@ -1,5 +1,5 @@
 [versions]
-adventure-api = "4.18.0"
+adventure = "4.18.0"
 adventure-platforms = "4.3.4"
 brigadier = "1.0.18"
 exaroton-api = { strictly = "[1.4.2, 2.0)", prefer = "1.6.2" }
@@ -15,9 +15,10 @@ slf4j = "2.0.16"
 velocity-api = "3.4.0-SNAPSHOT"
 
 [libraries]
-adventure-api = { module = "net.kyori:adventure-api", version.ref = "adventure-api" }
+adventure-api = { module = "net.kyori:adventure-api", version.ref = "adventure" }
 adventure-bukkit = { module = "net.kyori:adventure-platform-bukkit", version.ref = "adventure-platforms" }
 adventure-bungeecord = { module = "net.kyori:adventure-platform-bungeecord", version.ref = "adventure-platforms" }
+adventure-json-serializer = { module = "net.kyori:adventure-text-serializer-json", version.ref = "adventure" }
 brigadier = { module = "com.mojang:brigadier", version.ref = "brigadier" }
 exaroton-api = { module = "com.exaroton:api", version.ref = "exaroton-api" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
@@ -37,6 +38,6 @@ run-paper = { id = "xyz.jpenilla.run-paper", version.ref = "runtask" }
 run-velocity = { id = "xyz.jpenilla.run-velocity", version.ref = "runtask" }
 
 [bundles]
-common-impl = ["adventure-api", "brigadier", "exaroton-api", "gson", "guava", "nightconfig-core", "slf4j-api"]
+common-impl = ["adventure-api", "brigadier", "exaroton-api", "gson", "guava", "nightconfig-core", "slf4j-api", "adventure-json-serializer"]
 platform-base = ["exaroton-api", "nightconfig-toml"]
 platform-extended = ["adventure-api", "brigadier", "slf4j-api", "slf4j-jdk14"]

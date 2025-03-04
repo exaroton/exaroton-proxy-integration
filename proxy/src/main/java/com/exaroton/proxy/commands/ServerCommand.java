@@ -3,7 +3,6 @@ package com.exaroton.proxy.commands;
 import com.exaroton.api.APIException;
 import com.exaroton.api.ExarotonClient;
 import com.exaroton.api.server.Server;
-import com.exaroton.proxy.CommonPlugin;
 import com.exaroton.proxy.CommonProxyPlugin;
 import com.exaroton.proxy.Constants;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -48,7 +47,7 @@ public abstract class ServerCommand extends Command<CommonProxyPlugin<?>> {
     @Override
     public <T> LiteralArgumentBuilder<T> build(BuildContext<T> buildContext, LiteralArgumentBuilder<T> builder) {
         return builder.then(LiteralArgumentBuilder.<T>literal(name)
-                .requires(source -> buildContext.mapSource(source).hasPermission(permission))
+                .requires(source -> buildContext.mapSource(source).hasPermission(permission.node()))
                 .then(RequiredArgumentBuilder.<T, String>argument(ARGUMENT_SERVER, StringArgumentType.string())
                         .suggests(this::suggestServerName)
                         .executes(context -> {

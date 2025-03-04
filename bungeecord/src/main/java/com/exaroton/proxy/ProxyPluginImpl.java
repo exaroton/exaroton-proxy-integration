@@ -2,37 +2,26 @@ package com.exaroton.proxy;
 
 import com.exaroton.proxy.servers.proxy.IProxyServerManager;
 import net.md_5.bungee.api.connection.Server;
-import net.md_5.bungee.api.event.PluginMessageEvent;
-import net.md_5.bungee.api.plugin.Listener;
-import net.md_5.bungee.event.EventHandler;
 
-public class ProxyPluginImpl extends CommonProxyPlugin<Server> implements Listener {
+public class ProxyPluginImpl extends CommonProxyPlugin<Server> {
 
     private final BungeePlugin bungeePlugin;
+    private MessageControllerImpl messageController;
 
     public ProxyPluginImpl(BungeePlugin bungeePlugin) {
         this.bungeePlugin = bungeePlugin;
     }
 
-    @Override
-    protected void registerChannel(String channelId) {
-        bungeePlugin.getProxy().registerChannel(channelId);
-    }
+    public MessageControllerImpl getMessageController() {
+        if (messageController == null) {
+            messageController = new MessageControllerImpl(bungeePlugin);
+        }
 
-    @Override
-    protected void executeCommand(Server source, String[] args) {
-        bungeePlugin.getCommand().execute(new ServerCommandSender(source), args);
+        return messageController;
     }
 
     @Override
     protected IProxyServerManager getProxyServerManager() {
         return new BungeeProxyServerManager(bungeePlugin.getProxy());
-    }
-
-    @EventHandler
-    public void handleMessage(PluginMessageEvent event) {
-        if (event.getSender() instanceof Server) {
-            handleMessage(event.getTag(), (Server) event.getSender(), event.getData());
-        }
     }
 }

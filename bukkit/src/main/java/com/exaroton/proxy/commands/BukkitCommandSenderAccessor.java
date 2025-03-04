@@ -23,8 +23,8 @@ public class BukkitCommandSenderAccessor extends CommandSourceAccessor {
     }
 
     @Override
-    public boolean hasPermission(Permission permission) {
-        return commandSender.hasPermission(permission.node());
+    public boolean hasPermission(String permission) {
+        return commandSender.hasPermission(permission);
     }
 
     @Override

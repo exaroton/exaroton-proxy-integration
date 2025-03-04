@@ -23,8 +23,8 @@ public class BungeeCommandSenderAccessor extends CommandSourceAccessor {
     }
 
     @Override
-    public boolean hasPermission(Permission permission) {
-        return sender.hasPermission(permission.node());
+    public boolean hasPermission(String permission) {
+        return sender.hasPermission(permission);
     }
 
     @Override

@@ -1,42 +1,50 @@
 package com.exaroton.proxy;
 
+import com.exaroton.proxy.commands.CommandSourceAccessor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.connection.Server;
+import net.md_5.bungee.chat.ComponentSerializer;
 
 import java.util.Collection;
 import java.util.List;
 
-public class ServerCommandSender implements CommandSender {
-    private final Server source;
+public class CommandSourceCommandSender implements CommandSender {
+    private final CommandSourceAccessor source;
 
-    public ServerCommandSender(Server source) {
+    public CommandSourceCommandSender(CommandSourceAccessor source) {
         this.source = source;
     }
 
     @Override
     public String getName() {
-        return source.getInfo().getName();
+        return null;
     }
 
     @Override
     public void sendMessage(String message) {
-
+        source.sendSuccess(Component.text(message));
     }
 
     @Override
     public void sendMessages(String... messages) {
-
+        for (String msg : messages) {
+            sendMessage(msg);
+        }
     }
 
     @Override
     public void sendMessage(BaseComponent... message) {
-
+        for (BaseComponent msg : message) {
+            sendMessage(msg);
+        }
     }
 
     @Override
     public void sendMessage(BaseComponent message) {
-
+        String json = ComponentSerializer.toString(message);
+        source.sendSuccess(JSONComponentSerializer.json().deserialize(json));
     }
 
     @Override
@@ -56,7 +64,7 @@ public class ServerCommandSender implements CommandSender {
 
     @Override
     public boolean hasPermission(String permission) {
-        return true;
+        return source.hasPermission(permission);
     }
 
     @Override

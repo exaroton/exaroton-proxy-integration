@@ -19,8 +19,8 @@ public class VelocityCommandSourceAccessor extends CommandSourceAccessor {
     }
 
     @Override
-    public boolean hasPermission(Permission permission) {
-        return source.hasPermission(permission.node());
+    public boolean hasPermission(String permission) {
+        return source.hasPermission(permission);
     }
 
     @Override

@@ -1,13 +1,12 @@
 package com.exaroton.proxy;
 
-import com.mojang.brigadier.CommandDispatcher;
 import com.exaroton.proxy.commands.BungeeBrigadierCommand;
 import com.exaroton.proxy.commands.BungeeBuildContext;
 import com.exaroton.proxy.platform.Services;
+import com.mojang.brigadier.CommandDispatcher;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
 import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 
 public class BungeePlugin extends Plugin {
@@ -16,7 +15,7 @@ public class BungeePlugin extends Plugin {
         Services.setClassLoader(BungeePlugin.class.getClassLoader());
     }
 
-    protected CommonProxyPlugin<ProxiedPlayer> commonPlugin = new ProxyPluginImpl(this);
+    protected ProxyPluginImpl commonPlugin = new ProxyPluginImpl(this);
     protected BungeeAudiences adventure;
     protected BungeeBrigadierCommand command;
 
@@ -25,6 +24,7 @@ public class BungeePlugin extends Plugin {
         commonPlugin.init();
         adventure = BungeeAudiences.create(this);
         registerCommands();
+        getProxy().getPluginManager().registerListener(this, commonPlugin.getMessageController());
     }
 
     @Override
