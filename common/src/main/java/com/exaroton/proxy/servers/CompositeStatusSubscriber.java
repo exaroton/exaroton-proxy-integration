@@ -70,10 +70,8 @@ public class CompositeStatusSubscriber implements ServerStatusSubscriber {
 
     @Override
     public void handleStatusUpdate(Server oldServer, Server newServer) {
-        synchronized (subscribers) {
-            for (ServerStatusSubscriber subscriber : subscribers) {
-                subscriber.handleStatusUpdate(oldServer, newServer);
-            }
+        for (ServerStatusSubscriber subscriber : getSubscribers()) {
+            subscriber.handleStatusUpdate(oldServer, newServer);
         }
     }
 }

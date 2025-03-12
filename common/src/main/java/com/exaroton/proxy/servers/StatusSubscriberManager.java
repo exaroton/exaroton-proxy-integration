@@ -47,7 +47,7 @@ public class StatusSubscriberManager {
 
     public void addProxyStatusSubscriber(Server server, String name) {
         CompositeStatusSubscriber subscriber = getListener(server);
-        if (subscriber.getSubscribers().contains(updateProxyServersSubscriber)) {
+        if (!subscriber.getSubscribers().contains(updateProxyServersSubscriber)) {
             updateProxyServersSubscriber.addServerName(server.getId(), name);
             subscriber.addSubscriber(updateProxyServersSubscriber);
         }
