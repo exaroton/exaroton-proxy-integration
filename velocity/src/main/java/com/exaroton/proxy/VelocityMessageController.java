@@ -9,8 +9,6 @@ import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 
-import java.util.concurrent.CompletableFuture;
-
 public class VelocityMessageController extends ProxyMessageController<ServerConnection> {
     private static final ChannelIdentifier CHANNEL_ID = MinecraftChannelIdentifier.from(Constants.CHANNEL_ID);
     private final ProxyServer proxy;
@@ -31,9 +29,9 @@ public class VelocityMessageController extends ProxyMessageController<ServerConn
     }
 
     @Override
-    protected CompletableFuture<?> executeCommand(CommandSourceAccessor source, String[] args) {
+    protected void executeCommand(CommandSourceAccessor source, String[] args) {
         var cmdLine = "exaroton" + " " + String.join(" ", args);
-        return proxy.getCommandManager().executeAsync(new ServerConnectionCommandSource(source), cmdLine);
+        proxy.getCommandManager().executeAsync(new ServerConnectionCommandSource(source), cmdLine);
     }
 
     @Subscribe

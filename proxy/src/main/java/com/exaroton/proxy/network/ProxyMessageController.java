@@ -5,10 +5,7 @@ import com.exaroton.proxy.commands.CommandSourceAccessor;
 import com.exaroton.proxy.commands.PluginMessageCommandSourceAccessor;
 import com.exaroton.proxy.network.id.CommandExecutionId;
 import com.exaroton.proxy.network.id.PermissionRequestId;
-import com.exaroton.proxy.network.messages.ExecuteCommandMessage;
-import com.exaroton.proxy.network.messages.PermissionRequestMessage;
-import com.exaroton.proxy.network.messages.PermissionResponseMessage;
-import com.exaroton.proxy.network.messages.TextComponentMessage;
+import com.exaroton.proxy.network.messages.*;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,10 +29,7 @@ public abstract class ProxyMessageController<Server> extends MessageController<S
         if (message instanceof ExecuteCommandMessage) {
             ExecuteCommandMessage executeCommandMessage = (ExecuteCommandMessage) message;
             var source = new PluginMessageCommandSourceAccessor<>(this, origin, message.getCommandExecutionId());
-            executeCommand(source, executeCommandMessage.getArgs())
-                    .thenRun(() -> {
-                        //  TODO: Send finish message
-                    });
+            executeCommand(source, executeCommandMessage.getArgs());
         } else if (message instanceof PermissionResponseMessage) {
             PermissionResponseMessage response = (PermissionResponseMessage) message;
             CompletableFuture<PermissionResponseMessage> future = waitingPermissionChecks.remove(response.getRequestId());
@@ -65,5 +59,9 @@ public abstract class ProxyMessageController<Server> extends MessageController<S
         send(server, textComponentMessage);
     }
 
-    protected abstract CompletableFuture<?> executeCommand(CommandSourceAccessor source, String[] args);
+    public void freeExecutionId(Server server, CommandExecutionId id) {
+        send(server, new FreeExecutionIdMessage(id));
+    }
+
+    protected abstract void executeCommand(CommandSourceAccessor source, String[] args);
 }

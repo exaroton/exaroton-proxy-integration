@@ -28,8 +28,8 @@ public class BungeeMessageController extends ProxyMessageController<Server> impl
     }
 
     @Override
-    protected CompletableFuture<?> executeCommand(CommandSourceAccessor source, String[] args) {
-        return CompletableFuture.runAsync(() -> bungeePlugin.getCommand().execute(new CommandSourceCommandSender(source), args));
+    protected void executeCommand(CommandSourceAccessor source, String[] args) {
+        CompletableFuture.runAsync(() -> bungeePlugin.getCommand().execute(new CommandSourceCommandSender(source), args));
     }
 
     @EventHandler

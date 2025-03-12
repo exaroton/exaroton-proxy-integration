@@ -1,7 +1,6 @@
 package com.exaroton.proxy.commands;
 
 import com.exaroton.proxy.network.id.CommandExecutionId;
-import com.exaroton.proxy.network.id.NetworkId;
 import com.exaroton.proxy.network.ProxyMessageController;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.audience.MessageType;
@@ -11,9 +10,27 @@ import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.concurrent.ExecutionException;
+import java.lang.ref.Cleaner;
 
 public class PluginMessageCommandSourceAccessor<Server> extends CommandSourceAccessor {
+    private static final Cleaner cleaner = Cleaner.create();
+
+    private static class State<Server> implements Runnable {
+        private final ProxyMessageController<Server> controller;
+        private final Server server;
+        private final CommandExecutionId id;
+
+        State(ProxyMessageController<Server> controller, Server server, CommandExecutionId id) {
+            this.controller = controller;
+            this.server = server;
+            this.id = id;
+        }
+
+        public void run() {
+            controller.freeExecutionId(server, id);
+        }
+    }
+
     private final ProxyMessageController<Server> controller;
     private final Server server;
     private final CommandExecutionId id;
@@ -24,15 +41,13 @@ public class PluginMessageCommandSourceAccessor<Server> extends CommandSourceAcc
         this.controller = controller;
         this.server = server;
         this.id = id;
+
+        cleaner.register(this, new State<>(controller, server, id));
     }
 
     @Override
     public boolean hasPermission(String permission) {
-        try {
-            return controller.hasPermission(server, id, permission).get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
-        }
+        return controller.hasPermission(server, id, permission).join();
     }
 
     @Override

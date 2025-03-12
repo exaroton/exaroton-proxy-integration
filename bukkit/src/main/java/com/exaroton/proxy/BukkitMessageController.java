@@ -40,6 +40,12 @@ public class BukkitMessageController extends MessageController<Player> implement
     @Override
     protected void handleMessage(Player origin, Message<?> message) {
         var source = senders.get(message.getCommandExecutionId());
+
+        if (source == null) {
+            Constants.LOG.error("Received message for unknown command execution id: {}", message.getCommandExecutionId());
+            return;
+        }
+
         switch (message) {
             case PermissionRequestMessage request -> {
                 var result = source.hasPermission(request.getPermission());
@@ -61,6 +67,7 @@ public class BukkitMessageController extends MessageController<Player> implement
                     // or send our own message to the proxy?
                 }
             }
+            case FreeExecutionIdMessage freeExecutionIdMessage -> senders.remove(freeExecutionIdMessage.getCommandExecutionId());
             default -> Constants.LOG.error("Unknown message type: {}", message.getType());
         }
     }

@@ -14,6 +14,7 @@ public final class MessageType<T extends Message<T>> {
     public static final MessageType<PermissionResponseMessage> PERMISSION_RESPONSE = new MessageType<>("permission_response", PermissionResponseMessage::new);
     public static final MessageType<TextComponentMessage> TEXT_COMPONENT = new MessageType<>("text_component", TextComponentMessage::new);
     public static final MessageType<TransferPlayersMessage> TRANSFER_PLAYERS = new MessageType<>("transfer_players", TransferPlayersMessage::new);
+    public static final MessageType<FreeExecutionIdMessage> FREE_EXECUTION_ID = new MessageType<>("free_execution_id", FreeExecutionIdMessage::new);
 
     private final String slug;
     private final Function<ByteArrayDataInput, T> deserializer;
