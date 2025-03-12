@@ -24,7 +24,7 @@ public class BukkitMessageController extends MessageController<Player> implement
         var player = plugin.getServer().getOnlinePlayers().stream().findFirst();
 
         if (player.isEmpty()) {
-            Constants.LOG.error("No players online");
+            Constants.LOG.error("Executing exaroton commands on the proxy is only possible if there are players online");
             return;
         }
 
