@@ -11,6 +11,7 @@ dependencies {
     compileOnly "net.md-5:bungeecord-api:${minor_minecraft_version}-R0.1-SNAPSHOT"
     implementation(libs.bundles.platform.base)
     implementation(libs.bundles.platform.extended)
+    implementation(libs.slf4j.jdk14)
     implementation(libs.adventure.bungeecord)
 }
 

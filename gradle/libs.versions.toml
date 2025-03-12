@@ -40,4 +40,4 @@ run-velocity = { id = "xyz.jpenilla.run-velocity", version.ref = "runtask" }
 [bundles]
 common-impl = ["adventure-api", "brigadier", "exaroton-api", "gson", "guava", "nightconfig-core", "slf4j-api", "adventure-json-serializer"]
 platform-base = ["exaroton-api", "nightconfig-toml"]
-platform-extended = ["adventure-api", "brigadier", "slf4j-api", "slf4j-jdk14"]
+platform-extended = ["adventure-api", "brigadier"]

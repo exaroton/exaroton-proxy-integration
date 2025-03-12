@@ -18,7 +18,6 @@ tasks {
     }
 
     shadowJar {
-        relocate("org.slf4j", "com.exaroton.slf4j")
         relocate("com.electronwill.nightconfig", "com.exaroton.nightconfig")
         dependsOn("javadocJar", "sourcesJar")
         exclude 'com/google/gson/**'
