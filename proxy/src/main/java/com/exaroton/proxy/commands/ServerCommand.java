@@ -24,7 +24,6 @@ public abstract class ServerCommand extends Command<CommonProxyPlugin> {
     protected static final String ARGUMENT_SERVER = "server";
 
     protected final String name;
-    protected final Permission permission;
 
     /**
      * Create a new command
@@ -32,21 +31,18 @@ public abstract class ServerCommand extends Command<CommonProxyPlugin> {
      * @param plugin           The plugin
      * @param apiClient        The exaroton API client
      * @param name             The name of the subcommand
-     * @param permission       The required permission to execute the command
      */
     public ServerCommand(CommonProxyPlugin plugin,
                          ExarotonClient apiClient,
-                         String name,
-                         Permission permission) {
+                         String name) {
         super(plugin, apiClient);
         this.name = name;
-        this.permission = permission;
     }
 
     @Override
     public <T> LiteralArgumentBuilder<T> build(BuildContext<T> buildContext, LiteralArgumentBuilder<T> builder) {
         return builder.then(LiteralArgumentBuilder.<T>literal(name)
-                .requires(source -> buildContext.mapSource(source).hasPermission(permission.node()))
+                .requires(source -> buildContext.mapSource(source).hasPermission(name))
                 .then(RequiredArgumentBuilder.<T, String>argument(ARGUMENT_SERVER, StringArgumentType.string())
                         .suggests(this::suggestServerName)
                         .executes(context -> {

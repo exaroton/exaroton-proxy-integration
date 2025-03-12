@@ -21,7 +21,7 @@ public class BungeeBrigadierCommand extends Command implements TabExecutor {
             CommandDispatcher<CommandSender> dispatcher,
             BuildContext<CommandSender> buildContext
     ) {
-        super("exaroton", Permission.BASE.node());
+        super("exaroton", "exaroton");
         this.executor = new BrigadierExecutor<>(dispatcher, buildContext);
     }
 

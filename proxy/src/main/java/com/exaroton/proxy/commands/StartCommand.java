@@ -22,7 +22,7 @@ public class StartCommand extends ServerCommand {
      * @param apiClient The exaroton API client
      */
     public StartCommand(CommonProxyPlugin plugin, ExarotonClient apiClient) {
-        super(plugin, apiClient, "start", Permission.START);
+        super(plugin, apiClient, "start");
     }
 
     @Override
