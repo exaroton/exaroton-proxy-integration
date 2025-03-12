@@ -33,7 +33,7 @@ public class VelocityPlugin extends CommonProxyPlugin {
         init();
 
         registerCommands();
-        proxy.getEventManager().register(this, new MessageControllerImpl(proxy));
+        proxy.getEventManager().register(this, new VelocityMessageController(proxy));
     }
 
     protected void registerCommands() {

@@ -11,13 +11,13 @@ import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 
 import java.util.concurrent.CompletableFuture;
 
-public class MessageControllerImpl extends ProxyMessageController<ServerConnection> {
+public class VelocityMessageController extends ProxyMessageController<ServerConnection> {
     private static final ChannelIdentifier CHANNEL_ID = MinecraftChannelIdentifier.from(Constants.CHANNEL_ID);
     private final ProxyServer proxy;
 
-    public MessageControllerImpl(ProxyServer proxy) {
-        super();
+    public VelocityMessageController(ProxyServer proxy) {
         this.proxy = proxy;
+        registerChannel();
     }
 
     @Override

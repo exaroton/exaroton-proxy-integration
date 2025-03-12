@@ -9,12 +9,12 @@ import net.md_5.bungee.event.EventHandler;
 
 import java.util.concurrent.CompletableFuture;
 
-public class MessageControllerImpl extends ProxyMessageController<Server> implements Listener {
+public class BungeeMessageController extends ProxyMessageController<Server> implements Listener {
     private final BungeePlugin bungeePlugin;
 
-    public MessageControllerImpl(BungeePlugin bungeePlugin) {
-        super();
+    public BungeeMessageController(BungeePlugin bungeePlugin) {
         this.bungeePlugin = bungeePlugin;
+        registerChannel();
     }
 
     @Override

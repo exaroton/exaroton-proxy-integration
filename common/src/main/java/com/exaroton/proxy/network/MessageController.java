@@ -9,13 +9,6 @@ import com.google.common.io.ByteStreams;
  */
 public abstract class MessageController<Connection> {
     /**
-     * Create a new message controller and register the channel
-     */
-    protected MessageController() {
-        registerChannel();
-    }
-
-    /**
      * Send a message to the target
      * @param target message receiver
      * @param message message to send

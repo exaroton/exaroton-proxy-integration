@@ -5,15 +5,15 @@ import com.exaroton.proxy.servers.proxy.IProxyServerManager;
 public class ProxyPluginImpl extends CommonProxyPlugin {
 
     private final BungeePlugin bungeePlugin;
-    private MessageControllerImpl messageController;
+    private BungeeMessageController messageController;
 
     public ProxyPluginImpl(BungeePlugin bungeePlugin) {
         this.bungeePlugin = bungeePlugin;
     }
 
-    public MessageControllerImpl getMessageController() {
+    public BungeeMessageController getMessageController() {
         if (messageController == null) {
-            messageController = new MessageControllerImpl(bungeePlugin);
+            messageController = new BungeeMessageController(bungeePlugin);
         }
 
         return messageController;

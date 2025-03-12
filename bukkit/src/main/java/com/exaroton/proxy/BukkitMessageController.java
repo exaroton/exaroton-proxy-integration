@@ -10,12 +10,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
-public class MessageControllerImpl extends MessageController<Player> implements PluginMessageListener {
+public class BukkitMessageController extends MessageController<Player> implements PluginMessageListener {
     private final BukkitPlugin plugin;
     private final HashMap<NetworkId, CommandSender> senders = new HashMap<>();
 
-    public MessageControllerImpl(BukkitPlugin plugin) {
+    public BukkitMessageController(BukkitPlugin plugin) {
         this.plugin = plugin;
+        registerChannel();
     }
 
     public void executeCommand(CommandSender sender, String[] args) {
