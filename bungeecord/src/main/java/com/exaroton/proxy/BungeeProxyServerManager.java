@@ -46,7 +46,6 @@ public class BungeeProxyServerManager implements IProxyServerManager {
 
     @Override
     public Optional<String> getAddress(String name) {
-        // TODO: Check if this works
         return Optional.ofNullable(proxy.getServers().get(name))
                 .map(ServerInfo::getSocketAddress)
                 .flatMap(address -> {

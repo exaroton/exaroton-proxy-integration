@@ -40,7 +40,6 @@ public class BukkitPlugin extends JavaPlugin {
             Constants.LOG.error("This server is not BungeeCord.");
             Constants.LOG.error("If the server is already hooked to BungeeCord, please enable it into your spigot.yml aswell.");
             Constants.LOG.error("Plugin disabled!");
-            // TODO: logger does not work
             getServer().getPluginManager().disablePlugin(this);
             return false;
         }
