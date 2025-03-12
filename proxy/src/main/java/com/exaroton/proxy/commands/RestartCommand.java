@@ -13,11 +13,8 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
 
-public class StartCommand extends ServerCommand {
-    protected static final Set<ServerStatus> STARTABLE_STATUSES = Set.of(
-            ServerStatus.STARTING,
-            ServerStatus.ONLINE
-    );
+public class RestartCommand extends ServerCommand {
+    protected static final Set<ServerStatus> RESTARTABLE_STATUSES = Set.of(ServerStatus.ONLINE);
 
     /**
      * Create a new command
@@ -25,8 +22,8 @@ public class StartCommand extends ServerCommand {
      * @param plugin    The plugin
      * @param apiClient The exaroton API client
      */
-    public StartCommand(CommonProxyPlugin plugin, ExarotonClient apiClient) {
-        super(plugin, apiClient, "start");
+    public RestartCommand(CommonProxyPlugin plugin, ExarotonClient apiClient) {
+        super(plugin, apiClient, "restart");
     }
 
     @Override
@@ -35,8 +32,8 @@ public class StartCommand extends ServerCommand {
                               Server server) throws IOException {
         CommandSourceAccessor source = buildContext.mapSource(context.getSource());
 
-        if (!server.hasStatus(STARTABLE_STATUSES)) {
-            source.sendFailure(Component.text("Server has to be offline to be started"));
+        if (!server.hasStatus(RESTARTABLE_STATUSES)) {
+            source.sendFailure(Component.text("Server has to be online or starting to be stopped"));
             return;
         }
 
@@ -45,8 +42,8 @@ public class StartCommand extends ServerCommand {
         new WaitForStatusSubscriber(subscribers.getListener(server), source, ServerStatus.ONLINE)
                 .subscribe();
 
-        server.start();
-        source.sendSuccess(Component.text("Starting server")
+        server.restart();
+        source.sendSuccess(Component.text("Stopping server")
                 .appendSpace()
                 .append(Component.text(server.getAddress(), Constants.EXAROTON_GREEN))
                 .append(Component.text("."))
@@ -55,6 +52,6 @@ public class StartCommand extends ServerCommand {
 
     @Override
     protected Optional<Set<ServerStatus>> getAllowableServerStatuses() {
-        return Optional.of(STARTABLE_STATUSES);
+        return Optional.of(RESTARTABLE_STATUSES);
     }
 }

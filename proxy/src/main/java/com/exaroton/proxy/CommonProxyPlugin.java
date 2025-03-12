@@ -3,11 +3,12 @@ package com.exaroton.proxy;
 import com.electronwill.nightconfig.core.file.FileConfig;
 import com.electronwill.nightconfig.core.serde.ObjectDeserializer;
 import com.electronwill.nightconfig.core.serde.ObjectSerializer;
-import com.exaroton.api.APIException;
 import com.exaroton.api.ExarotonClient;
 import com.exaroton.api.server.Server;
 import com.exaroton.proxy.commands.Command;
+import com.exaroton.proxy.commands.RestartCommand;
 import com.exaroton.proxy.commands.StartCommand;
+import com.exaroton.proxy.commands.StopCommand;
 import com.exaroton.proxy.platform.Services;
 import com.exaroton.proxy.servers.ServerCache;
 import com.exaroton.proxy.servers.StatusSubscriberManager;
@@ -141,7 +142,9 @@ public abstract class CommonProxyPlugin extends CommonPlugin {
     @Override
     protected Collection<Command<?>> getCommands()  {
         return List.of(
-                new StartCommand(this, apiClient)
+                new StartCommand(this, apiClient),
+                new StopCommand(this, apiClient),
+                new RestartCommand(this, apiClient)
         );
     }
 }

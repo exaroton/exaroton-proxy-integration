@@ -8,17 +8,24 @@ import com.exaroton.proxy.commands.CommandSourceAccessor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 public class WaitForStatusSubscriber implements ServerStatusSubscriber {
     private final CompositeStatusSubscriber parent;
     private final CommandSourceAccessor source;
-    private final ServerStatus targetStatus;
+    private final Set<ServerStatus> targetStatus;
     private CompletableFuture<Server> future;
 
     public WaitForStatusSubscriber(CompositeStatusSubscriber parent,
                                    CommandSourceAccessor source,
-                                   ServerStatus targetStatus) {
+                                   ServerStatus... targetStatus) {
+        this(parent, source, Set.of(targetStatus));
+    }
+
+    public WaitForStatusSubscriber(CompositeStatusSubscriber parent,
+                                   CommandSourceAccessor source,
+                                   Set<ServerStatus> targetStatus) {
         this.parent = parent;
         this.source = source;
         this.targetStatus = targetStatus;
@@ -36,7 +43,7 @@ public class WaitForStatusSubscriber implements ServerStatusSubscriber {
 
     @Override
     public void handleStatusUpdate(Server oldServer, Server newServer) {
-        if (newServer.getStatus() == targetStatus) {
+        if (newServer.hasStatus(targetStatus)) {
             future.complete(newServer);
             parent.removeSubscriber(this);
         }
