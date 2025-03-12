@@ -11,7 +11,7 @@ import java.util.HashSet;
  * This class is used to manage multiple subscribers for a single server.
  * It automatically unsubscribes from the server if there are no subscribers left.
  */
-public class CompositeStatusSubscriber extends ServerStatusSubscriber {
+public class CompositeStatusSubscriber implements ServerStatusSubscriber {
     /**
      * All subscribers
      */
@@ -69,10 +69,10 @@ public class CompositeStatusSubscriber extends ServerStatusSubscriber {
     }
 
     @Override
-    public void statusUpdate(Server oldServer, Server newServer) {
+    public void handleStatusUpdate(Server oldServer, Server newServer) {
         synchronized (subscribers) {
             for (ServerStatusSubscriber subscriber : subscribers) {
-                subscriber.statusUpdate(oldServer, newServer);
+                subscriber.handleStatusUpdate(oldServer, newServer);
             }
         }
     }

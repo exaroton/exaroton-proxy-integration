@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class UpdateProxyServersSubscriber extends ServerStatusSubscriber {
+public class UpdateProxyServersSubscriber implements ServerStatusSubscriber {
     private final Map<String, String> names = new HashMap<>();
     private final IProxyServerManager serverManager;
 
@@ -30,7 +30,7 @@ public class UpdateProxyServersSubscriber extends ServerStatusSubscriber {
     }
 
     @Override
-    public void statusUpdate(Server oldServer, Server newServer) {
+    public void handleStatusUpdate(Server oldServer, Server newServer) {
         if (newServer.getStatus() == oldServer.getStatus()) {
             return;
         }

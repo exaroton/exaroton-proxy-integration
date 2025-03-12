@@ -13,10 +13,9 @@ import com.exaroton.proxy.servers.ServerCache;
 import com.exaroton.proxy.servers.StatusSubscriberManager;
 import com.exaroton.proxy.servers.proxy.IProxyServerManager;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public abstract class CommonProxyPlugin extends CommonPlugin {
     protected ExarotonClient apiClient;
@@ -53,34 +52,40 @@ public abstract class CommonProxyPlugin extends CommonPlugin {
      * @param name server name
      * @param refresh force refresh the server cache
      * @return the server if it was found or an empty optional
-     * @throws APIException API error while fetching servers
      */
-    public Optional<Server> findServer(String name, boolean refresh) throws APIException {
-        name = getProxyServerManager().getAddress(name).orElse(name);
+    public CompletableFuture<Optional<Server>> findServer(String name, boolean refresh) throws IOException {
+        final var query = getProxyServerManager().getAddress(name).orElse(name);
 
+        var future = CompletableFuture.<Void>completedFuture(null);
         if (refresh) {
-            serverCache.refresh();
+            future = serverCache.refresh();
         }
 
-        return serverCache.getServer(name);
+        return future.thenCompose(x -> {
+            try {
+                return serverCache.getServer(query);
+            } catch (IOException e) {
+                return CompletableFuture.failedFuture(e);
+            }
+        });
     }
 
     /**
      * Find a specific server and refresh the server cache
+     *
      * @param name server name
      * @return the server if it was found or an empty optional
-     * @throws APIException API error while fetching servers
      */
-    public Optional<Server> findServer(String name) throws APIException {
+    public CompletableFuture<Optional<Server>> findServer(String name) throws IOException {
         return findServer(name, true);
     }
 
     /**
      * Get all available exaroton servers
+     *
      * @return all available exaroton servers
-     * @throws APIException API error while fetching servers
      */
-    public Collection<Server> getServers() throws APIException {
+    public CompletableFuture<Collection<Server>> getServers() throws IOException {
         return serverCache.getServers();
     }
 

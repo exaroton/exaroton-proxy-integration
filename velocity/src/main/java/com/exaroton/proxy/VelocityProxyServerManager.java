@@ -22,7 +22,12 @@ public class VelocityProxyServerManager implements IProxyServerManager {
             return false;
         }
 
-        proxy.registerServer(new ServerInfo(name, new InetSocketAddress(server.getHost(), server.getPort())));
+        var address = server.getSocketAddress();
+        if (address.isEmpty()) {
+            return false;
+        }
+
+        proxy.registerServer(new ServerInfo(name, address.get()));
         return true;
     }
 

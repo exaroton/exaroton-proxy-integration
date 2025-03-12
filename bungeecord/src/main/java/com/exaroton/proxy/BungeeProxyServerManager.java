@@ -24,10 +24,15 @@ public class BungeeProxyServerManager implements IProxyServerManager {
 
     @Override
     public boolean addServer(String name, Server server) {
+        var address = server.getSocketAddress();
+        if (address.isEmpty()) {
+            return false;
+        }
+
         // TODO: remember restricted option
         ServerInfo serverInfo = proxy.constructServerInfo(
                 name,
-                new InetSocketAddress(server.getHost(), server.getPort()),
+                address.get(),
                 server.getMotd(),
                 false
         );

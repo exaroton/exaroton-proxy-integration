@@ -1,19 +1,17 @@
 package com.exaroton.proxy.commands;
 
-import com.exaroton.api.APIException;
 import com.exaroton.api.ExarotonClient;
 import com.exaroton.api.server.Server;
 import com.exaroton.api.server.ServerStatus;
-import com.exaroton.proxy.CommonPlugin;
 import com.exaroton.proxy.CommonProxyPlugin;
 import com.exaroton.proxy.Constants;
 import com.exaroton.proxy.servers.WaitForStatusSubscriber;
 import com.mojang.brigadier.context.CommandContext;
 import net.kyori.adventure.text.Component;
 
-import java.util.Collection;
-import java.util.List;
+import java.io.IOException;
 import java.util.Optional;
+import java.util.Set;
 
 public class StartCommand extends ServerCommand {
 
@@ -28,14 +26,14 @@ public class StartCommand extends ServerCommand {
     }
 
     @Override
-    protected <T> int execute(CommandContext<T> context,
+    protected <T> void execute(CommandContext<T> context,
                               BuildContext<T> buildContext,
-                              Server server) throws APIException {
+                              Server server) throws IOException {
         CommandSourceAccessor source = buildContext.mapSource(context.getSource());
 
-        if (!server.hasStatus(ServerStatus.OFFLINE, ServerStatus.CRASHED)) {
+        if (!server.hasStatus(ServerStatus.GROUP_OFFLINE)) {
             source.sendFailure(Component.text("Server has to be offline to be started"));
-            return 0;
+            return;
         }
 
         var subscribers = plugin.getStatusSubscribers();
@@ -49,12 +47,10 @@ public class StartCommand extends ServerCommand {
                 .append(Component.text(server.getAddress(), Constants.EXAROTON_GREEN))
                 .append(Component.text("."))
         );
-
-        return 0;
     }
 
     @Override
-    protected Optional<Collection<Integer>> getAllowableServerStatuses() {
-        return Optional.of(List.of(ServerStatus.OFFLINE, ServerStatus.CRASHED));
+    protected Optional<Set<ServerStatus>> getAllowableServerStatuses() {
+        return Optional.of(ServerStatus.GROUP_OFFLINE);
     }
 }

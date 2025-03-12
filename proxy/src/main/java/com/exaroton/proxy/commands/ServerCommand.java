@@ -1,8 +1,8 @@
 package com.exaroton.proxy.commands;
 
-import com.exaroton.api.APIException;
 import com.exaroton.api.ExarotonClient;
 import com.exaroton.api.server.Server;
+import com.exaroton.api.server.ServerStatus;
 import com.exaroton.proxy.CommonProxyPlugin;
 import com.exaroton.proxy.Constants;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -13,9 +13,8 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.kyori.adventure.text.Component;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.io.IOException;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -54,23 +53,34 @@ public abstract class ServerCommand extends Command<CommonProxyPlugin> {
                             CommandSourceAccessor source = buildContext.mapSource(context.getSource());
                             String serverInput = context.getArgument(ARGUMENT_SERVER, String.class);
 
-                            Optional<Server> server;
                             try {
-                                server = this.plugin.findServer(serverInput);
+                                this.plugin.findServer(serverInput).thenAccept(server -> {
+                                    if (server.isEmpty()) {
+                                        source.sendFailure(Component.text("Failed to find a server with the name " + serverInput));
+                                        return;
+                                    }
 
-                                if (server.isEmpty()) {
-                                    source.sendFailure(Component.text("Failed to find a server with the name " + serverInput));
-                                    return 1;
-                                }
-
-                                return execute(context, buildContext, server.get());
-                            } catch (APIException e) {
-                                source.sendFailure(Component.text("An API Error occurred. Check your log for details!"));
-                                return 1;
+                                    try {
+                                        execute(context, buildContext, server.get());
+                                    } catch (Exception e) {
+                                        executionException(source, e);
+                                    }
+                                }).exceptionally(t -> {
+                                    executionException(source, t);
+                                    return null;
+                                });
+                            } catch (IOException e) {
+                                executionException(source, e);
                             }
+                            return 1;
                         })
                 )
         );
+    }
+
+    private void executionException(CommandSourceAccessor source, Throwable t) {
+        Constants.LOG.error("An error occurred while executing the command", t);
+        source.sendFailure(Component.text("An error occurred while executing the command"));
     }
 
     /**
@@ -78,39 +88,49 @@ public abstract class ServerCommand extends Command<CommonProxyPlugin> {
      * @param context The command context
      * @param buildContext The build context
      * @param server The server
-     * @return The command result
      * @param <T> The command source type
-     * @throws APIException If an API error occurred. This will be caught, logged and the user will receive a message
      */
-    protected abstract <T> int execute(CommandContext<T> context,
+    protected abstract <T> void execute(CommandContext<T> context,
                                        BuildContext<T> buildContext,
-                                       Server server) throws APIException;
+                                       Server server) throws IOException;
 
     /**
      * Get all server statuses that should be used for suggestions
      * @return The server statuses or an empty optional if all statuses should be used
      */
-    protected abstract Optional<Collection<Integer>> getAllowableServerStatuses();
+    protected abstract Optional<Set<ServerStatus>> getAllowableServerStatuses();
 
-    private  <T> CompletableFuture<Suggestions> suggestServerName(CommandContext<T> context, SuggestionsBuilder builder) {
-        Optional<Collection<Integer>> allowableStatuses = getAllowableServerStatuses();
+    private <T> CompletableFuture<Suggestions> suggestServerName(CommandContext<T> context, SuggestionsBuilder builder) {
+        Optional<Set<ServerStatus>> allowableStatuses = getAllowableServerStatuses();
         try {
-            for (Server server : this.plugin.getServers()) {
-                if (allowableStatuses.isPresent() && !allowableStatuses.get().contains(server.getStatus())) {
-                    continue;
-                }
+            return this.plugin.getServers().thenApply(servers -> {
+                for (Server server : servers) {
+                    if (allowableStatuses.isPresent() && server.hasStatus(allowableStatuses.get())) {
+                        continue;
+                    }
 
-                for (String possibleInput : List.of(server.getName(), server.getAddress(), server.getId())) {
-                    if (possibleInput.startsWith(builder.getRemaining())) {
-                        builder.suggest(possibleInput);
+                    for (String possibleInput : List.of(server.getName(), server.getAddress(), server.getId())) {
+                        if (possibleInput.startsWith(builder.getRemaining())) {
+                            builder.suggest(possibleInput);
+                        }
                     }
                 }
-            }
 
-            return builder.buildFuture();
-        } catch (APIException e) {
-            Constants.LOG.error("An API Error occurred. Check your log for details!", e);
-            return Suggestions.empty();
+                return builder.build();
+            }).handleAsync((suggestions, throwable) -> {
+                if (throwable != null) {
+                    return suggestionException(throwable);
+                }
+
+                return CompletableFuture.completedFuture(suggestions);
+            }).thenCompose(x -> x);
+        } catch (Exception e) {
+            return suggestionException(e);
         }
+    }
+
+    private CompletableFuture<Suggestions> suggestionException(Throwable t) {
+        Constants.LOG.error("An error occurred while suggesting server names", t);
+        return Suggestions.empty();
     }
 }

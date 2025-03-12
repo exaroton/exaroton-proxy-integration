@@ -10,15 +10,15 @@ import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.concurrent.CompletableFuture;
 
-public class WaitForStatusSubscriber extends ServerStatusSubscriber {
+public class WaitForStatusSubscriber implements ServerStatusSubscriber {
     private final CompositeStatusSubscriber parent;
     private final CommandSourceAccessor source;
-    private final Integer targetStatus;
+    private final ServerStatus targetStatus;
     private CompletableFuture<Server> future;
 
     public WaitForStatusSubscriber(CompositeStatusSubscriber parent,
                                    CommandSourceAccessor source,
-                                   Integer targetStatus) {
+                                   ServerStatus targetStatus) {
         this.parent = parent;
         this.source = source;
         this.targetStatus = targetStatus;
@@ -35,7 +35,7 @@ public class WaitForStatusSubscriber extends ServerStatusSubscriber {
     }
 
     @Override
-    public void statusUpdate(Server oldServer, Server newServer) {
+    public void handleStatusUpdate(Server oldServer, Server newServer) {
         if (newServer.getStatus() == targetStatus) {
             future.complete(newServer);
             parent.removeSubscriber(this);
@@ -45,10 +45,10 @@ public class WaitForStatusSubscriber extends ServerStatusSubscriber {
             Component status;
 
             switch (newServer.getStatus()) {
-                case ServerStatus.ONLINE:
+                case ONLINE:
                     status = Component.text("online", Constants.EXAROTON_GREEN);
                     break;
-                case ServerStatus.OFFLINE:
+                case OFFLINE:
                     status = Component.text("offline", NamedTextColor.RED);
                     break;
                 default:
