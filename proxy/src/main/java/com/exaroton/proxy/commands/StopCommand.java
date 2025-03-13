@@ -41,7 +41,6 @@ public class StopCommand extends ServerCommand {
         }
 
         var subscribers = plugin.getStatusSubscribers();
-        subscribers.addProxyStatusSubscriber(server, null);
         new WaitForStatusSubscriber(subscribers.getListener(server), source, ServerStatus.GROUP_OFFLINE)
                 .subscribe();
 

@@ -1,7 +1,7 @@
 package com.exaroton.proxy;
 
 import com.exaroton.api.server.Server;
-import com.exaroton.proxy.servers.proxy.IProxyServerManager;
+import com.exaroton.proxy.servers.proxy.ProxyServerManager;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
@@ -9,7 +9,7 @@ import com.velocitypowered.api.proxy.server.ServerInfo;
 import java.net.InetSocketAddress;
 import java.util.Optional;
 
-public class VelocityProxyServerManager implements IProxyServerManager {
+public class VelocityProxyServerManager extends ProxyServerManager {
     private final ProxyServer proxy;
 
     public VelocityProxyServerManager(ProxyServer proxy) {
@@ -17,22 +17,17 @@ public class VelocityProxyServerManager implements IProxyServerManager {
     }
 
     @Override
-    public boolean addServer(String name, Server server) {
+    public boolean addServer(String name, InetSocketAddress address, Server server) {
         if (proxy.getServer(name).isPresent()) {
             return false;
         }
 
-        var address = server.getSocketAddress();
-        if (address.isEmpty()) {
-            return false;
-        }
-
-        proxy.registerServer(new ServerInfo(name, address.get()));
+        proxy.registerServer(new ServerInfo(name, address));
         return true;
     }
 
     @Override
-    public boolean removeServer(String name, Server server) {
+    public boolean removeServer(String name) {
         Optional<RegisteredServer> registered = proxy.getServer(name);
 
         if (registered.isEmpty()) {
@@ -42,6 +37,11 @@ public class VelocityProxyServerManager implements IProxyServerManager {
         proxy.unregisterServer(registered.get().getServerInfo());
         return true;
 
+    }
+
+    @Override
+    protected boolean hasServer(String name) {
+        return proxy.getServer(name).isPresent();
     }
 
     @Override

@@ -4,7 +4,7 @@ import com.exaroton.api.server.Server;
 import com.exaroton.api.server.ServerStatus;
 import com.exaroton.api.ws.subscriber.ServerStatusSubscriber;
 import com.exaroton.proxy.Constants;
-import com.exaroton.proxy.servers.proxy.IProxyServerManager;
+import com.exaroton.proxy.servers.proxy.ProxyServerManager;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -12,13 +12,13 @@ import java.util.Map;
 
 public class UpdateProxyServersSubscriber implements ServerStatusSubscriber {
     private final Map<String, String> names = new HashMap<>();
-    private final IProxyServerManager serverManager;
+    private final ProxyServerManager serverManager;
 
     /**
      * Create a new subscriber
      * @param serverManager proxy server manager
      */
-    public UpdateProxyServersSubscriber(IProxyServerManager serverManager) {
+    public UpdateProxyServersSubscriber(ProxyServerManager serverManager) {
         super();
         this.serverManager = serverManager;
     }
@@ -36,17 +36,13 @@ public class UpdateProxyServersSubscriber implements ServerStatusSubscriber {
         }
 
         if (newServer.hasStatus(ServerStatus.ONLINE)) {
-            if (serverManager.addServer(getName(newServer), newServer)) {
-                Constants.LOG.info("Added server {} to proxy", getName(newServer));
+            if (serverManager.addServer(newServer)) {
+                Constants.LOG.info("Added server {} to proxy", newServer.getAddress());
             }
         } else if (oldServer.hasStatus(ServerStatus.ONLINE)) {
-            if (serverManager.removeServer(getName(newServer), newServer)) {
+            if (serverManager.removeServer(newServer)) {
                 Constants.LOG.info("Removed server {} from proxy", getName(newServer));
             }
         }
-    }
-
-    private String getName(Server server) {
-        return this.names.getOrDefault(server.getId(), server.getName());
     }
 }

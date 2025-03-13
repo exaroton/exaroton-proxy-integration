@@ -1,7 +1,7 @@
 package com.exaroton.proxy.servers;
 
 import com.exaroton.api.server.Server;
-import com.exaroton.proxy.servers.proxy.IProxyServerManager;
+import com.exaroton.proxy.servers.proxy.ProxyServerManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +31,7 @@ public class StatusSubscriberManager {
      * Create a new status subscriber manager
      * @param serverCache server cache
      */
-    public StatusSubscriberManager(ServerCache serverCache, IProxyServerManager serverManager) {
+    public StatusSubscriberManager(ServerCache serverCache, ProxyServerManager serverManager) {
         this.serverCache = serverCache;
         this.updateProxyServersSubscriber = new UpdateProxyServersSubscriber(serverManager);
     }

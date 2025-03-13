@@ -5,14 +5,11 @@ import com.electronwill.nightconfig.core.serde.ObjectDeserializer;
 import com.electronwill.nightconfig.core.serde.ObjectSerializer;
 import com.exaroton.api.ExarotonClient;
 import com.exaroton.api.server.Server;
-import com.exaroton.proxy.commands.Command;
-import com.exaroton.proxy.commands.RestartCommand;
-import com.exaroton.proxy.commands.StartCommand;
-import com.exaroton.proxy.commands.StopCommand;
+import com.exaroton.proxy.commands.*;
 import com.exaroton.proxy.platform.Services;
 import com.exaroton.proxy.servers.ServerCache;
 import com.exaroton.proxy.servers.StatusSubscriberManager;
-import com.exaroton.proxy.servers.proxy.IProxyServerManager;
+import com.exaroton.proxy.servers.proxy.ProxyServerManager;
 
 import java.io.IOException;
 import java.util.*;
@@ -102,7 +99,7 @@ public abstract class CommonProxyPlugin extends CommonPlugin {
      * Get the proxy server manager
      * @return an implementation of IProxyServerManager for this proxy
      */
-    protected abstract IProxyServerManager getProxyServerManager();
+    protected abstract ProxyServerManager getProxyServerManager();
 
     protected void migrateOldConfigFields() {
         for (Map.Entry<String, String> entry : Map.of(
@@ -144,7 +141,8 @@ public abstract class CommonProxyPlugin extends CommonPlugin {
         return List.of(
                 new StartCommand(this, apiClient),
                 new StopCommand(this, apiClient),
-                new RestartCommand(this, apiClient)
+                new RestartCommand(this, apiClient),
+                new AddCommand(this, apiClient, getProxyServerManager())
         );
     }
 }

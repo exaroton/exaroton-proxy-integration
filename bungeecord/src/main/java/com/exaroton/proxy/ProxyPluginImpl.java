@@ -1,6 +1,6 @@
 package com.exaroton.proxy;
 
-import com.exaroton.proxy.servers.proxy.IProxyServerManager;
+import com.exaroton.proxy.servers.proxy.ProxyServerManager;
 
 public class ProxyPluginImpl extends CommonProxyPlugin {
 
@@ -20,7 +20,7 @@ public class ProxyPluginImpl extends CommonProxyPlugin {
     }
 
     @Override
-    protected IProxyServerManager getProxyServerManager() {
+    protected ProxyServerManager getProxyServerManager() {
         return new BungeeProxyServerManager(bungeePlugin.getProxy());
     }
 }
