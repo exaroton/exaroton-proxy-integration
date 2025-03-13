@@ -142,7 +142,8 @@ public abstract class CommonProxyPlugin extends CommonPlugin {
                 new StartCommand(this, apiClient),
                 new StopCommand(this, apiClient),
                 new RestartCommand(this, apiClient),
-                new AddCommand(this, apiClient, getProxyServerManager())
+                new AddCommand(this, apiClient, getProxyServerManager()),
+                new RemoveCommand(this, apiClient, getProxyServerManager())
         );
     }
 }

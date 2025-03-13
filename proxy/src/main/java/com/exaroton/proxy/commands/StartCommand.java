@@ -4,7 +4,7 @@ import com.exaroton.api.ExarotonClient;
 import com.exaroton.api.server.Server;
 import com.exaroton.api.server.ServerStatus;
 import com.exaroton.proxy.CommonProxyPlugin;
-import com.exaroton.proxy.Constants;
+import com.exaroton.proxy.Components;
 import com.exaroton.proxy.servers.WaitForStatusSubscriber;
 import com.mojang.brigadier.context.CommandContext;
 import net.kyori.adventure.text.Component;
@@ -48,7 +48,7 @@ public class StartCommand extends ServerCommand {
         server.start();
         source.sendSuccess(Component.text("Starting server")
                 .appendSpace()
-                .append(Component.text(server.getAddress(), Constants.EXAROTON_GREEN))
+                .append(Components.addressText(server))
                 .append(Component.text("."))
         );
     }

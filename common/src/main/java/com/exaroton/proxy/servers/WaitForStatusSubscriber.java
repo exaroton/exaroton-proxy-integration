@@ -1,12 +1,12 @@
 package com.exaroton.proxy.servers;
 
+import com.exaroton.api.BrandColor;
 import com.exaroton.api.server.Server;
 import com.exaroton.api.server.ServerStatus;
 import com.exaroton.api.ws.subscriber.ServerStatusSubscriber;
-import com.exaroton.proxy.Constants;
+import com.exaroton.proxy.Components;
 import com.exaroton.proxy.commands.CommandSourceAccessor;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -53,10 +53,10 @@ public class WaitForStatusSubscriber implements ServerStatusSubscriber {
 
             switch (newServer.getStatus()) {
                 case ONLINE:
-                    status = Component.text("online", Constants.EXAROTON_GREEN);
+                    status = Components.text("online", BrandColor.MAIN);
                     break;
                 case OFFLINE:
-                    status = Component.text("offline", NamedTextColor.RED);
+                    status = Components.text("offline", BrandColor.DANGER);
                     break;
                 default:
                     return;
@@ -64,7 +64,7 @@ public class WaitForStatusSubscriber implements ServerStatusSubscriber {
 
             Component message = Component.text("Server")
                     .appendSpace()
-                    .append(Component.text(newServer.getAddress(), Constants.EXAROTON_GREEN))
+                    .append(Components.addressText(newServer))
                     .appendSpace()
                     .append(Component.text("changed status to"))
                     .appendSpace()
