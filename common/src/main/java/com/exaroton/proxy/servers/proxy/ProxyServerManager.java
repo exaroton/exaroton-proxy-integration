@@ -1,6 +1,10 @@
 package com.exaroton.proxy.servers.proxy;
 
 import com.exaroton.api.server.Server;
+import com.exaroton.proxy.Components;
+import com.exaroton.proxy.Constants;
+import com.exaroton.proxy.commands.CommandSourceAccessor;
+import net.kyori.adventure.text.Component;
 
 import java.net.InetSocketAddress;
 import java.util.HashMap;
@@ -16,6 +20,23 @@ public abstract class ProxyServerManager {
      */
     private final Map<String, String> names = new HashMap<>();
     // TODO: Initialize these names from proxy config
+
+    public void addServer(Server server, CommandSourceAccessor source) {
+        if (hasServer(server)) {
+            source.sendFailure(Component.text("Server is already in the proxy"));
+            return;
+        }
+
+        if (addServer(server)) {
+            source.sendSuccess(Component.text("Added server ")
+                    .append(Components.addressText(server))
+                    .append(Component.text(" to the proxy")));
+        } else {
+            source.sendFailure(Component.text("Failed to add server ")
+                    .append(Components.addressText(server))
+                    .append(Component.text(" to the proxy")));
+        }
+    }
 
     /**
      * Add a server to the proxy
@@ -47,11 +68,20 @@ public abstract class ProxyServerManager {
     }
 
     /**
-     * Check if a server with the same name is already in the proxy
-     * @param name name of the server to check
-     * @return true if the server is already in the proxy
+     * Transfer a player to another server
+     * @param server server to transfer the player to
+     * @param player player to transfer
      */
-    protected abstract boolean hasServer(String name);
+    public void transferPlayer(Server server, String player) {
+        String name = getName(server);
+
+        if (!hasServer(name)) {
+            Constants.LOG.error("Tried to transfer player {} to non-existing server: {}", player, name);
+            return;
+        }
+
+        this.transferPlayer(name, player);
+    }
 
     /**
      * Get the address of a server by its name
@@ -75,6 +105,20 @@ public abstract class ProxyServerManager {
      * @return true if the server was removed
      */
     protected abstract boolean removeServer(String name);
+
+    /**
+     * Check if a server with the same name is already in the proxy
+     * @param name name of the server to check
+     * @return true if the server is already in the proxy
+     */
+    protected abstract boolean hasServer(String name);
+
+    /**
+     * Transfer a player to another server
+     * @param server server to transfer the player to
+     * @param player player to transfer
+     */
+    protected abstract void transferPlayer(String server, String player);
 
     private String getName(Server server) {
         return this.names.getOrDefault(server.getId(), server.getName());

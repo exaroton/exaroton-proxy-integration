@@ -41,7 +41,7 @@ public class UpdateProxyServersSubscriber implements ServerStatusSubscriber {
             }
         } else if (oldServer.hasStatus(ServerStatus.ONLINE)) {
             if (serverManager.removeServer(newServer)) {
-                Constants.LOG.info("Removed server {} from proxy", getName(newServer));
+                Constants.LOG.info("Removed server {} from proxy", newServer.getAddress());
             }
         }
     }

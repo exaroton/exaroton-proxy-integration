@@ -10,6 +10,9 @@ import net.md_5.bungee.chat.ComponentSerializer;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Implementation of {@link CommandSender} based on a {@link CommandSourceAccessor}.
+ */
 public class CommandSourceCommandSender implements CommandSender {
     private final CommandSourceAccessor source;
 

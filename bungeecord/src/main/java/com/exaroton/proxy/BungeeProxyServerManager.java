@@ -52,6 +52,11 @@ public class BungeeProxyServerManager extends ProxyServerManager {
     }
 
     @Override
+    protected void transferPlayer(String server, String player) {
+        proxy.getPlayer(player).connect(proxy.getServerInfo(server));
+    }
+
+    @Override
     public Optional<String> getAddress(String name) {
         return Optional.ofNullable(proxy.getServers().get(name))
                 .map(ServerInfo::getSocketAddress)

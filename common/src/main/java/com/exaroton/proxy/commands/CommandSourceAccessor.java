@@ -4,6 +4,8 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
+import java.util.Optional;
+
 /**
  * An interface for platform-agnostic command source access.
  */
@@ -14,6 +16,12 @@ public abstract class CommandSourceAccessor {
      * @return {@code true} if the source has the permission, {@code false} otherwise.
      */
     public abstract boolean hasPermission(String permission);
+
+    /**
+     * Get the name of the player who executed the command.
+     * @return The name of the player who executed the command, if applicable.
+     */
+    public abstract Optional<String> getPlayerName();
 
     /**
      * Get an adventure audience for the command source.

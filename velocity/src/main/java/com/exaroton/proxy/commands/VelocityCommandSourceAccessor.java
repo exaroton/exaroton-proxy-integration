@@ -1,7 +1,10 @@
 package com.exaroton.proxy.commands;
 
 import com.velocitypowered.api.command.CommandSource;
+import com.velocitypowered.api.proxy.Player;
 import net.kyori.adventure.audience.Audience;
+
+import java.util.Optional;
 
 public class VelocityCommandSourceAccessor extends CommandSourceAccessor {
     /**
@@ -21,6 +24,14 @@ public class VelocityCommandSourceAccessor extends CommandSourceAccessor {
     @Override
     public boolean hasPermission(String permission) {
         return source.hasPermission(permission);
+    }
+
+    @Override
+    public Optional<String> getPlayerName() {
+        if (source instanceof Player) {
+            return Optional.of(((Player) source).getUsername());
+        }
+        return Optional.empty();
     }
 
     @Override

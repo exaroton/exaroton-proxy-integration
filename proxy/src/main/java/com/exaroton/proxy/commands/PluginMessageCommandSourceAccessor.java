@@ -9,8 +9,10 @@ import net.kyori.adventure.chat.SignedMessage;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.Cleaner;
+import java.util.Optional;
 
 public class PluginMessageCommandSourceAccessor<Server> extends CommandSourceAccessor {
     private static final Cleaner cleaner = Cleaner.create();
@@ -33,13 +35,17 @@ public class PluginMessageCommandSourceAccessor<Server> extends CommandSourceAcc
 
     private final ProxyMessageController<Server> controller;
     private final Server server;
+    @Nullable
+    private final String playerName;
     private final CommandExecutionId id;
 
     public PluginMessageCommandSourceAccessor(ProxyMessageController<Server> controller,
                                               Server server,
+                                              @Nullable String playerName,
                                               CommandExecutionId id) {
         this.controller = controller;
         this.server = server;
+        this.playerName = playerName;
         this.id = id;
 
         cleaner.register(this, new State<>(controller, server, id));
@@ -48,6 +54,11 @@ public class PluginMessageCommandSourceAccessor<Server> extends CommandSourceAcc
     @Override
     public boolean hasPermission(String permission) {
         return controller.hasPermission(server, id, permission).join();
+    }
+
+    @Override
+    public Optional<String> getPlayerName() {
+        return Optional.ofNullable(playerName);
     }
 
     @Override

@@ -3,6 +3,9 @@ package com.exaroton.proxy.commands;
 import com.exaroton.proxy.BungeePlugin;
 import net.kyori.adventure.audience.Audience;
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
+
+import java.util.Optional;
 
 /**
  * A BungeeCord implementation of {@link CommandSourceAccessor}.
@@ -25,6 +28,15 @@ public class BungeeCommandSenderAccessor extends CommandSourceAccessor {
     @Override
     public boolean hasPermission(String permission) {
         return sender.hasPermission(permission);
+    }
+
+    @Override
+    public Optional<String> getPlayerName() {
+        if (sender instanceof ProxiedPlayer) {
+            return Optional.of(sender.getName());
+        }
+
+        return Optional.empty();
     }
 
     @Override

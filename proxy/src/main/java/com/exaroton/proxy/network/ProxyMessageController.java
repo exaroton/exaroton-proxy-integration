@@ -16,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * A controller for handling plugin messages on a proxy
+ *
  * @param <Server> server connection type to send/receive messages from/to
  */
 public abstract class ProxyMessageController<Server> extends MessageController<Server> {
@@ -28,7 +29,12 @@ public abstract class ProxyMessageController<Server> extends MessageController<S
     protected void handleMessage(Server origin, Message<?> message) {
         if (message instanceof ExecuteCommandMessage) {
             ExecuteCommandMessage executeCommandMessage = (ExecuteCommandMessage) message;
-            var source = new PluginMessageCommandSourceAccessor<>(this, origin, message.getCommandExecutionId());
+            var source = new PluginMessageCommandSourceAccessor<>(
+                    this,
+                    origin,
+                    executeCommandMessage.getPlayerName().orElse(null),
+                    message.getCommandExecutionId()
+            );
             executeCommand(source, executeCommandMessage.getArgs());
         } else if (message instanceof PermissionResponseMessage) {
             PermissionResponseMessage response = (PermissionResponseMessage) message;

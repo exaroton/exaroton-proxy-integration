@@ -99,7 +99,7 @@ public abstract class CommonProxyPlugin extends CommonPlugin {
      * Get the proxy server manager
      * @return an implementation of IProxyServerManager for this proxy
      */
-    protected abstract ProxyServerManager getProxyServerManager();
+    public abstract ProxyServerManager getProxyServerManager();
 
     protected void migrateOldConfigFields() {
         for (Map.Entry<String, String> entry : Map.of(
@@ -139,11 +139,12 @@ public abstract class CommonProxyPlugin extends CommonPlugin {
     @Override
     protected Collection<Command<?>> getCommands()  {
         return List.of(
-                new StartCommand(this, apiClient),
-                new StopCommand(this, apiClient),
-                new RestartCommand(this, apiClient),
-                new AddCommand(this, apiClient, getProxyServerManager()),
-                new RemoveCommand(this, apiClient, getProxyServerManager())
+                new StartCommand(this),
+                new StopCommand(this),
+                new RestartCommand(this),
+                new AddCommand(this),
+                new RemoveCommand(this),
+                new SwitchCommand(this)
         );
     }
 }

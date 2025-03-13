@@ -1,6 +1,5 @@
 package com.exaroton.proxy.commands;
 
-import com.exaroton.api.ExarotonClient;
 import com.exaroton.api.server.Server;
 import com.exaroton.api.server.ServerStatus;
 import com.exaroton.proxy.CommonProxyPlugin;
@@ -20,10 +19,9 @@ public class RestartCommand extends ServerCommand {
      * Create a new command
      *
      * @param plugin    The plugin
-     * @param apiClient The exaroton API client
      */
-    public RestartCommand(CommonProxyPlugin plugin, ExarotonClient apiClient) {
-        super(plugin, apiClient, "restart");
+    public RestartCommand(CommonProxyPlugin plugin) {
+        super(plugin, "restart");
     }
 
     @Override

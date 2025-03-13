@@ -1,6 +1,5 @@
 package com.exaroton.proxy.commands;
 
-import com.exaroton.api.ExarotonClient;
 import com.exaroton.api.server.Server;
 import com.exaroton.api.server.ServerStatus;
 import com.exaroton.proxy.CommonProxyPlugin;
@@ -23,10 +22,9 @@ public class StopCommand extends ServerCommand {
      * Create a new command
      *
      * @param plugin    The plugin
-     * @param apiClient The exaroton API client
      */
-    public StopCommand(CommonProxyPlugin plugin, ExarotonClient apiClient) {
-        super(plugin, apiClient, "stop");
+    public StopCommand(CommonProxyPlugin plugin) {
+        super(plugin, "stop");
     }
 
     @Override

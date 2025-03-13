@@ -20,7 +20,13 @@ public class BukkitMessageController extends MessageController<Player> implement
     }
 
     public void executeCommand(CommandSender sender, String[] args) {
-        var message = new ExecuteCommandMessage(args);
+        String playerName = null;
+        // TODO: test execute as @p
+        if (senders instanceof Player) {
+            playerName = sender.getName();
+        }
+
+        var message = new ExecuteCommandMessage(playerName, args);
         var player = plugin.getServer().getOnlinePlayers().stream().findFirst();
 
         if (player.isEmpty()) {

@@ -2,6 +2,7 @@ package com.exaroton.proxy;
 
 import com.exaroton.api.server.Server;
 import com.exaroton.proxy.servers.proxy.ProxyServerManager;
+import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
@@ -42,6 +43,23 @@ public class VelocityProxyServerManager extends ProxyServerManager {
     @Override
     protected boolean hasServer(String name) {
         return proxy.getServer(name).isPresent();
+    }
+
+    @Override
+    protected void transferPlayer(String serverName, String playerName) {
+        Optional<RegisteredServer> server = proxy.getServer(serverName);
+        if (server.isEmpty()) {
+            Constants.LOG.error("Failed to transfer player {} to server {}: server not found", playerName, serverName);
+            return;
+        }
+
+        Optional<Player> player = proxy.getPlayer(playerName);
+        if (player.isEmpty()) {
+            Constants.LOG.error("Failed to transfer player {}: player not found", playerName);
+            return;
+        }
+
+        player.get().createConnectionRequest(server.get()).fireAndForget();
     }
 
     @Override

@@ -53,7 +53,7 @@ public class VelocityPlugin extends CommonProxyPlugin {
     }
 
     @Override
-    protected ProxyServerManager getProxyServerManager() {
+    public ProxyServerManager getProxyServerManager() {
         return new VelocityProxyServerManager(proxy);
     }
 }
