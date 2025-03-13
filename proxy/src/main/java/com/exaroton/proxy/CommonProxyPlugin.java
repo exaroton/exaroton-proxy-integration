@@ -51,17 +51,27 @@ public abstract class CommonProxyPlugin extends CommonPlugin {
      * @param refresh force refresh the server cache
      * @return the server if it was found or an empty optional
      */
-    public CompletableFuture<Optional<Server>> findServer(String name, boolean refresh) throws IOException {
-        final var query = getProxyServerManager().getAddress(name).orElse(name);
+    public CompletableFuture<Optional<Server>> findServer(final String name, boolean refresh) throws IOException {
+        Optional<String> address = getProxyServerManager().getAddress(name);
 
-        var future = CompletableFuture.<Void>completedFuture(null);
+        var refreshFuture = CompletableFuture.<Void>completedFuture(null);
         if (refresh) {
-            future = serverCache.refresh();
+            refreshFuture = serverCache.refresh();
+        }
+
+        CompletableFuture<Optional<Server>> future = refreshFuture.thenApply(x -> Optional.empty());
+
+        if (address.isPresent()) {
+            future = findServer(address.get(), false);
         }
 
         return future.thenCompose(x -> {
+            if (x.isPresent()) {
+                return CompletableFuture.completedFuture(x);
+            }
+
             try {
-                return serverCache.getServer(query);
+                return serverCache.getServer(name);
             } catch (IOException e) {
                 return CompletableFuture.failedFuture(e);
             }
