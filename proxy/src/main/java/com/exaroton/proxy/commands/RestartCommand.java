@@ -31,7 +31,7 @@ public class RestartCommand extends ServerCommand {
         CommandSourceAccessor source = buildContext.mapSource(context.getSource());
 
         if (!server.hasStatus(RESTARTABLE_STATUSES)) {
-            source.sendFailure(Component.text("Server has to be online or starting to be stopped"));
+            source.sendFailure(Components.incorrectStatus(server, RESTARTABLE_STATUSES, "restarted"));
             return;
         }
 
@@ -41,7 +41,7 @@ public class RestartCommand extends ServerCommand {
                 .subscribe();
 
         server.restart();
-        source.sendSuccess(Component.text("Stopping server")
+        source.sendSuccess(Component.text("Restarting server")
                 .appendSpace()
                 .append(Components.addressText(server))
                 .append(Component.text("."))

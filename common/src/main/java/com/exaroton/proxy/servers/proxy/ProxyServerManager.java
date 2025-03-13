@@ -30,11 +30,11 @@ public abstract class ProxyServerManager {
         if (addServer(server)) {
             source.sendSuccess(Component.text("Added server ")
                     .append(Components.addressText(server))
-                    .append(Component.text(" to the proxy")));
+                    .append(Component.text(" to the proxy.")));
         } else {
             source.sendFailure(Component.text("Failed to add server ")
                     .append(Components.addressText(server))
-                    .append(Component.text(" to the proxy")));
+                    .append(Component.text(" to the proxy.")));
         }
     }
 

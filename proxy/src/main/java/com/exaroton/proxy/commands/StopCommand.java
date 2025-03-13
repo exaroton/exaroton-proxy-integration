@@ -34,7 +34,7 @@ public class StopCommand extends ServerCommand {
         CommandSourceAccessor source = buildContext.mapSource(context.getSource());
 
         if (!server.hasStatus(STOPPABLE_STATUSES)) {
-            source.sendFailure(Component.text("Server has to be online or starting to be stopped"));
+            source.sendFailure(Components.incorrectStatus(server, STOPPABLE_STATUSES, "stopped"));
             return;
         }
 

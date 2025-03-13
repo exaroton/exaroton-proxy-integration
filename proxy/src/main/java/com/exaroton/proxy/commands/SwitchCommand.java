@@ -41,7 +41,7 @@ public class SwitchCommand extends ServerCommand {
         CommandSourceAccessor source = buildContext.mapSource(context.getSource());
 
         if (!server.hasStatus(SWITCHABLE_STATUSES)) {
-            source.sendFailure(Component.text("A server must be online, starting or startable to switch to it"));
+            source.sendFailure(Components.incorrectStatus(server, SWITCHABLE_STATUSES, "switched to"));
             return;
         }
 

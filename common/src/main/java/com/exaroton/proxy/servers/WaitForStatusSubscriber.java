@@ -1,6 +1,5 @@
 package com.exaroton.proxy.servers;
 
-import com.exaroton.api.BrandColor;
 import com.exaroton.api.server.Server;
 import com.exaroton.api.server.ServerStatus;
 import com.exaroton.api.ws.subscriber.ServerStatusSubscriber;
@@ -49,26 +48,14 @@ public class WaitForStatusSubscriber implements ServerStatusSubscriber {
         }
 
         if (oldServer.getStatus() != newServer.getStatus()) {
-            Component status;
-
-            switch (newServer.getStatus()) {
-                case ONLINE:
-                    status = Components.text("online", BrandColor.MAIN);
-                    break;
-                case OFFLINE:
-                    status = Components.text("offline", BrandColor.DANGER);
-                    break;
-                default:
-                    return;
-            }
-
             Component message = Component.text("Server")
                     .appendSpace()
                     .append(Components.addressText(newServer))
                     .appendSpace()
                     .append(Component.text("changed status to"))
                     .appendSpace()
-                    .append(status);
+                    .append(Components.statusText(newServer.getStatus()))
+                    .append(Component.text("."));
             source.sendSuccess(message);
         }
     }

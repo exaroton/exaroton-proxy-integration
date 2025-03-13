@@ -27,18 +27,18 @@ public class RemoveCommand extends ServerCommand {
         CommandSourceAccessor source = buildContext.mapSource(context.getSource());
 
         if (!plugin.getProxyServerManager().hasServer(server)) {
-            source.sendFailure(Component.text("Server is not registered with this proxy"));
+            source.sendFailure(Component.text("Server is not registered with this proxy."));
             return;
         }
 
         if (plugin.getProxyServerManager().removeServer(server)) {
             source.sendSuccess(Component.text("Removed server ")
                     .append(Components.addressText(server))
-                    .append(Component.text(" from the proxy")));
+                    .append(Component.text(" from the proxy.")));
         } else {
             source.sendFailure(Component.text("Failed to remove server ")
                     .append(Components.addressText(server))
-                    .append(Component.text(" from the proxy")));
+                    .append(Component.text(" from the proxy.")));
         }
     }
 

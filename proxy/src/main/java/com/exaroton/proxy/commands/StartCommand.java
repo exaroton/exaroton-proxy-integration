@@ -14,8 +14,8 @@ import java.util.Set;
 
 public class StartCommand extends ServerCommand {
     public static final Set<ServerStatus> STARTABLE_STATUSES = Set.of(
-            ServerStatus.STARTING,
-            ServerStatus.ONLINE
+            ServerStatus.OFFLINE,
+            ServerStatus.CRASHED
     );
 
     /**
@@ -34,7 +34,7 @@ public class StartCommand extends ServerCommand {
         CommandSourceAccessor source = buildContext.mapSource(context.getSource());
 
         if (!server.hasStatus(STARTABLE_STATUSES)) {
-            source.sendFailure(Component.text("Server has to be offline to be started"));
+            source.sendFailure(Components.incorrectStatus(server, STARTABLE_STATUSES, "started"));
             return;
         }
 

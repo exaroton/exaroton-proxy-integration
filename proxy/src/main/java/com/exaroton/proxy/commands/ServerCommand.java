@@ -38,7 +38,7 @@ public abstract class ServerCommand extends Command<CommonProxyPlugin> {
     @Override
     public <T> LiteralArgumentBuilder<T> build(BuildContext<T> buildContext, LiteralArgumentBuilder<T> builder) {
         return builder.then(LiteralArgumentBuilder.<T>literal(name)
-                .requires(source -> buildContext.mapSource(source).hasPermission(name))
+                .requires(source -> buildContext.mapSource(source).hasPermission("exaroton." + name))
                 .then(RequiredArgumentBuilder.<T, String>argument(ARGUMENT_SERVER, StringArgumentType.string())
                         .suggests(this::suggestServerName)
                         .executes(context -> {
@@ -81,6 +81,7 @@ public abstract class ServerCommand extends Command<CommonProxyPlugin> {
      * @param buildContext The build context
      * @param server The server
      * @param <T> The command source type
+     * @throws IOException If sending a request fails
      */
     protected abstract <T> void execute(CommandContext<T> context,
                                        BuildContext<T> buildContext,
@@ -93,11 +94,13 @@ public abstract class ServerCommand extends Command<CommonProxyPlugin> {
     protected abstract Optional<Set<ServerStatus>> getAllowableServerStatuses();
 
     private <T> CompletableFuture<Suggestions> suggestServerName(CommandContext<T> context, SuggestionsBuilder builder) {
+        // TODO: names from the proxy
+
         Optional<Set<ServerStatus>> allowableStatuses = getAllowableServerStatuses();
         try {
             return this.plugin.getServers().thenApply(servers -> {
                 for (Server server : servers) {
-                    if (allowableStatuses.isPresent() && server.hasStatus(allowableStatuses.get())) {
+                    if (allowableStatuses.isPresent() && !server.hasStatus(allowableStatuses.get())) {
                         continue;
                     }
 

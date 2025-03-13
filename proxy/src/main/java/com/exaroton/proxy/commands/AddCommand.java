@@ -3,8 +3,8 @@ package com.exaroton.proxy.commands;
 import com.exaroton.api.server.Server;
 import com.exaroton.api.server.ServerStatus;
 import com.exaroton.proxy.CommonProxyPlugin;
+import com.exaroton.proxy.Components;
 import com.mojang.brigadier.context.CommandContext;
-import net.kyori.adventure.text.Component;
 
 import java.util.Optional;
 import java.util.Set;
@@ -27,7 +27,7 @@ public class AddCommand extends ServerCommand {
         CommandSourceAccessor source = buildContext.mapSource(context.getSource());
 
         if (!server.hasStatus(ServerStatus.ONLINE)) {
-            source.sendFailure(Component.text("Server has to be online before it can be added to your proxy"));
+            source.sendFailure(Components.incorrectStatus(server, Set.of(ServerStatus.ONLINE), "added to your proxy"));
             return;
         }
 
