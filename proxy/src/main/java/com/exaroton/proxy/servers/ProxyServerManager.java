@@ -1,4 +1,4 @@
-package com.exaroton.proxy.servers.proxy;
+package com.exaroton.proxy.servers;
 
 import com.exaroton.api.server.Server;
 import com.exaroton.proxy.Components;
@@ -85,6 +85,28 @@ public abstract class ProxyServerManager {
     }
 
     /**
+     * Transfer a player to another server
+     * @param server server to transfer the player to
+     * @param playerNames players to transfer
+     */
+    public void transferPlayers(Server server, Set<String> playerNames) {
+        for (String player : playerNames) {
+            transferPlayer(server, player);
+        }
+    }
+
+    /**
+     * Set the name of a server
+     * @param id server id
+     * @param name server name in the proxy
+     */
+    public void setServerName(String id, String name) {
+        if (name != null) {
+            names.put(id, name);
+        }
+    }
+
+    /**
      * Get the address of a server by its name
      * @param name name of the server in the proxy
      * @return the address of the server or an empty optional if the server was not found
@@ -123,16 +145,5 @@ public abstract class ProxyServerManager {
 
     private String getName(Server server) {
         return this.names.getOrDefault(server.getId(), server.getName());
-    }
-
-    /**
-     * Transfer a player to another server
-     * @param server server to transfer the player to
-     * @param playerNames players to transfer
-     */
-    public void transferPlayers(Server server, Set<String> playerNames) {
-        for (String player : playerNames) {
-            transferPlayer(server, player);
-        }
     }
 }

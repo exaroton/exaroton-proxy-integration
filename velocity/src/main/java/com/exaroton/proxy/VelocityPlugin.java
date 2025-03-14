@@ -3,7 +3,7 @@ package com.exaroton.proxy;
 import com.exaroton.proxy.commands.VelocityBuildContext;
 import com.exaroton.proxy.platform.Services;
 import com.exaroton.proxy.platform.services.VelocityPlatformHelper;
-import com.exaroton.proxy.servers.proxy.ProxyServerManager;
+import com.exaroton.proxy.servers.ProxyServerManager;
 import com.google.inject.Inject;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.velocitypowered.api.command.BrigadierCommand;

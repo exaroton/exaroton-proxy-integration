@@ -7,8 +7,8 @@ plugins {
 
 dependencies {
     compileOnly "org.spigotmc:spigot-api:${minor_minecraft_version}-R0.1-SNAPSHOT"
-    implementation(libs.bundles.platform.base)
-    implementation(libs.bundles.platform.extended)
+    implementation(libs.bundles.common)
+    implementation(libs.adventure.api)
     implementation(libs.adventure.bukkit)
 }
 

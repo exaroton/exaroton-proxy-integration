@@ -38,6 +38,7 @@ run-paper = { id = "xyz.jpenilla.run-paper", version.ref = "runtask" }
 run-velocity = { id = "xyz.jpenilla.run-velocity", version.ref = "runtask" }
 
 [bundles]
-common-impl = ["adventure-api", "brigadier", "exaroton-api", "gson", "guava", "nightconfig-core", "slf4j-api", "adventure-json-serializer"]
+common = ["adventure-api", "adventure-json-serializer", "guava", "gson", "slf4j-api"]
+proxy = ["brigadier", "exaroton-api", "nightconfig-core"]
 platform-base = ["exaroton-api", "nightconfig-toml"]
 platform-extended = ["adventure-api", "brigadier"]

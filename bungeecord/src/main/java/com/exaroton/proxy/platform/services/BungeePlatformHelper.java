@@ -26,11 +26,6 @@ public class BungeePlatformHelper implements IPlatformHelper {
     }
 
     @Override
-    public String getMinecraftVersion() {
-        return null;
-    }
-
-    @Override
     public String getPluginVersion() {
         return plugin.getDescription().getVersion();
     }

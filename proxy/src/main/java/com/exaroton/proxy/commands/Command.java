@@ -1,13 +1,13 @@
 package com.exaroton.proxy.commands;
 
-import com.exaroton.proxy.CommonPlugin;
+import com.exaroton.proxy.CommonProxyPlugin;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 
 /**
  * A platform-agnostic command
  * @param <CommonType> The plugin type
  */
-public abstract class Command<CommonType extends CommonPlugin> {
+public abstract class Command<CommonType extends CommonProxyPlugin> {
     /**
      * The plugin
      */

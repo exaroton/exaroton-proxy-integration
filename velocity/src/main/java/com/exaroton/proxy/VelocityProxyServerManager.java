@@ -1,7 +1,7 @@
 package com.exaroton.proxy;
 
 import com.exaroton.api.server.Server;
-import com.exaroton.proxy.servers.proxy.ProxyServerManager;
+import com.exaroton.proxy.servers.ProxyServerManager;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;

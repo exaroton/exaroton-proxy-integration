@@ -1,7 +1,7 @@
 package com.exaroton.proxy.servers;
 
 import com.exaroton.api.server.Server;
-import com.exaroton.proxy.servers.proxy.ProxyServerManager;
+import com.exaroton.proxy.CommonProxyPlugin;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +12,7 @@ import java.util.Map;
  * @see CompositeStatusSubscriber
  */
 public class StatusSubscriberManager {
+    private final CommonProxyPlugin common;
     /**
      * The server cache that will be added to every new listener
      */
@@ -31,7 +32,10 @@ public class StatusSubscriberManager {
      * Create a new status subscriber manager
      * @param serverCache server cache
      */
-    public StatusSubscriberManager(ServerCache serverCache, ProxyServerManager serverManager) {
+    public StatusSubscriberManager(CommonProxyPlugin common,
+                                   ServerCache serverCache,
+                                   ProxyServerManager serverManager) {
+        this.common = common;
         this.serverCache = serverCache;
         this.updateProxyServersSubscriber = new UpdateProxyServersSubscriber(serverManager);
     }
@@ -47,9 +51,10 @@ public class StatusSubscriberManager {
 
     public void addProxyStatusSubscriber(Server server, String name) {
         CompositeStatusSubscriber subscriber = getListener(server);
+        ProxyServerManager serverManager = common.getProxyServerManager();
         if (!subscriber.getSubscribers().contains(updateProxyServersSubscriber)) {
-            updateProxyServersSubscriber.addServerName(server.getId(), name);
             subscriber.addSubscriber(updateProxyServersSubscriber);
+            serverManager.setServerName(server.getId(), name);
         }
     }
 

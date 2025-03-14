@@ -7,15 +7,20 @@ import com.exaroton.api.ExarotonClient;
 import com.exaroton.api.server.Server;
 import com.exaroton.proxy.commands.*;
 import com.exaroton.proxy.platform.Services;
+import com.exaroton.proxy.servers.ProxyServerManager;
 import com.exaroton.proxy.servers.ServerCache;
 import com.exaroton.proxy.servers.StatusSubscriberManager;
-import com.exaroton.proxy.servers.proxy.ProxyServerManager;
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-public abstract class CommonProxyPlugin extends CommonPlugin {
+public abstract class CommonProxyPlugin {
     protected ExarotonClient apiClient;
     protected FileConfig configFile;
     protected Configuration config = new Configuration();
@@ -42,7 +47,7 @@ public abstract class CommonProxyPlugin extends CommonPlugin {
         apiClient = new ExarotonClient(config.apiToken).setUserAgent("proxy-plugin/"
                 + Services.platform().getPlatformName() + "/" + Services.platform().getPluginVersion());
         serverCache = new ServerCache(apiClient);
-        statusSubscribers = new StatusSubscriberManager(serverCache, getProxyServerManager());
+        statusSubscribers = new StatusSubscriberManager(this, serverCache, getProxyServerManager());
     }
 
     /**
@@ -152,7 +157,6 @@ public abstract class CommonProxyPlugin extends CommonPlugin {
         }
     }
 
-    @Override
     protected Collection<Command<?>> getCommands()  {
         return List.of(
                 new StartCommand(this),
@@ -163,5 +167,14 @@ public abstract class CommonProxyPlugin extends CommonPlugin {
                 new SwitchCommand(this),
                 new TransferCommand(this)
         );
+    }
+
+    protected <T> void registerCommands(CommandDispatcher<T> dispatcher, BuildContext<T> context) {
+        Constants.LOG.info("Registering command exaroton");
+        var builder = LiteralArgumentBuilder.<T>literal("exaroton");
+
+        for (var command : getCommands()) {
+            dispatcher.register(command.build(context, builder));
+        }
     }
 }

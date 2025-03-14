@@ -1,9 +1,9 @@
 package com.exaroton.proxy.commands;
 
+import com.exaroton.proxy.Constants;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.exaroton.proxy.Constants;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;

@@ -1,6 +1,6 @@
 package com.exaroton.proxy;
 
-import com.exaroton.proxy.servers.proxy.ProxyServerManager;
+import com.exaroton.proxy.servers.ProxyServerManager;
 import net.md_5.bungee.api.CommandSender;
 
 import java.util.Collection;

@@ -1,8 +1,6 @@
 package com.exaroton.proxy;
 
 import com.exaroton.proxy.commands.BukkitProxyCommand;
-import com.exaroton.proxy.platform.Services;
-import com.mojang.brigadier.CommandDispatcher;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.command.CommandSender;
@@ -11,13 +9,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class BukkitPlugin extends JavaPlugin {
-    static {
-        // Bukkit uses a different class loader for plugins than the default thread context class loader.
-        Services.setClassLoader(BukkitPlugin.class.getClassLoader());
-    }
-
     protected BukkitAudiences adventure;
-    protected CommandDispatcher<CommandSender> dispatcher;
     protected BukkitMessageController messageController;
 
     @Override
@@ -25,7 +17,7 @@ public class BukkitPlugin extends JavaPlugin {
         adventure = BukkitAudiences.create(this);
         if (!checkIfBungee()) {
             return;
-        }; // TODO: consider if this works with modern velocity forwarding
+        } // TODO: consider if this works with modern velocity forwarding
 
         messageController = new BukkitMessageController(this);
         var command = new BukkitProxyCommand(this, messageController);

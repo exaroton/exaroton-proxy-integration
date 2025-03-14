@@ -43,11 +43,6 @@ public class VelocityPlatformHelper implements IPlatformHelper {
     }
 
     @Override
-    public String getMinecraftVersion() {
-        return null;
-    }
-
-    @Override
     public String getPluginVersion() {
         return getPluginContainer()
                 .flatMap(container -> container.getDescription().getVersion())

@@ -6,7 +6,8 @@ sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
 
 dependencies {
-    implementation(libs.bundles.common.impl)
+    implementation(libs.bundles.common)
+    implementation(libs.bundles.proxy)
     compileOnly(libs.jetbrains.annotations)
 }
 
