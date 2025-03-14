@@ -3,9 +3,16 @@ package com.exaroton.proxy.commands;
 import com.exaroton.proxy.Constants;
 import com.exaroton.proxy.BukkitPlugin;
 import com.exaroton.proxy.BukkitMessageController;
+import org.bukkit.Bukkit;
 import org.bukkit.command.*;
 import org.bukkit.command.Command;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Bukkit command that forwards all inputs to the proxy
@@ -27,10 +34,42 @@ public class BukkitProxyCommand implements CommandExecutor {
                              @NotNull Command command,
                              @NotNull String label,
                              @NotNull String[] args) {
-        messageController.executeCommand(sender, args);
+        var processedArgs = new ArrayList<String>(args.length);
+
+        for (var arg : args) {
+            if (arg.startsWith("@")) {
+                processedArgs.addAll(matchSelector(sender, arg));
+            } else {
+                processedArgs.add(arg);
+            }
+        }
+
+        messageController.executeCommand(sender, processedArgs.toArray(String[]::new));
         return true;
     }
 
+    /**
+     * Match a selector (@a, @p, @r, @s) to a list of player names. This method removes other entities and
+     * returns the selector itself if it was invalid.
+     * @return List of player names or the selector itself
+     */
+    protected Collection<String> matchSelector(CommandSender sender, String arg) {
+        var result = new ArrayList<String>();
+        List<Entity> entities;
+        try {
+            entities = Bukkit.selectEntities(sender, arg);
+        } catch (IllegalArgumentException e) {
+            return List.of(arg);
+        }
+
+        for (var entity : entities) {
+            if (entity instanceof Player) {
+                result.add(entity.getName());
+            }
+        }
+
+        return result;
+    }
 
     public void register() {
         var command = plugin.getCommand("exaroton");

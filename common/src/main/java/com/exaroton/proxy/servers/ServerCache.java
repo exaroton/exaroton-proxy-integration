@@ -78,8 +78,8 @@ public class ServerCache implements ServerStatusSubscriber {
                 server = Optional.ofNullable(this.servers.get(query));
             }
 
-            return server.or(() -> getServer(s -> query.equals(s.getName())))
-                    .or(() -> getServer(s -> query.equals(s.getAddress())));
+            return server.or(() -> getServer(s -> query.equalsIgnoreCase(s.getName())))
+                    .or(() -> getServer(s -> query.equalsIgnoreCase(s.getAddress())));
         });
     }
 

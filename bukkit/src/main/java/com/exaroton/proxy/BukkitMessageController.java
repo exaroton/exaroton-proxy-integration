@@ -21,7 +21,6 @@ public class BukkitMessageController extends MessageController<Player> implement
 
     public void executeCommand(CommandSender sender, String[] args) {
         String playerName = null;
-        // TODO: test execute as @p
         if (senders instanceof Player) {
             playerName = sender.getName();
         }

@@ -68,6 +68,27 @@ enabled = false
 servers = ["example.exaroton.me"]
 ```
 
+## Bukkit plugin
+The bukkit plugin forwards commands from your backend servers to the proxy using plugin messages. This makes it possible
+to use these commands in command blocks or other plugins (e.g. for NPCs).
+
+Since plugin messages are sent using a player connection, at least one player has to be connected to the backend server.
+If the plugin is missing from one of your proxies, the player could read the command that would have been executed.
+
+Selectors like `@a`, `@p` and `@r` will automatically be replaced on the backend server. `@a` therefore refers to all
+players on the backend server, not all players on the proxy. These selectors are not supported on the proxy directly.
+
+
+## Using multiple Proxies
+Since this plugin does not synchronize the proxy servers with each other, there are some limitations when you try to
+use it with multiple proxies. Starting a server using `/exaroton start <server>` only adds the server to the proxy you
+are connected to right now. Stopping/Restarting works across proxies, assuming that all proxies have the plugin 
+installed as they will automatically remove the server when it is no longer online and will automatically add it back
+once it comes back online.
+
+If all servers you intend to use with the proxy are already in your proxy configuration, starting a server should also
+work across proxies because the other proxies are already watching the status of this server.
+
 ## Contributing
 This project is licensed as MIT. Contributions are welcome but if you plan some larger changes please
 create an issue for discussion first, to avoid wasting time on something that might not be merged.

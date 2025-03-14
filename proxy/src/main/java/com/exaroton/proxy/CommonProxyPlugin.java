@@ -111,6 +111,12 @@ public abstract class CommonProxyPlugin extends CommonPlugin {
      */
     public abstract ProxyServerManager getProxyServerManager();
 
+    /**
+     * Get a list of all players currently connected to the proxy
+     * @return iterable of player names
+     */
+    public abstract Collection<String> getPlayers();
+
     protected void migrateOldConfigFields() {
         for (Map.Entry<String, String> entry : Map.of(
                 "watch-servers", "watchServers",
@@ -154,7 +160,8 @@ public abstract class CommonProxyPlugin extends CommonPlugin {
                 new RestartCommand(this),
                 new AddCommand(this),
                 new RemoveCommand(this),
-                new SwitchCommand(this)
+                new SwitchCommand(this),
+                new TransferCommand(this)
         );
     }
 }

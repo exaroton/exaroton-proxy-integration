@@ -1,6 +1,10 @@
 package com.exaroton.proxy;
 
 import com.exaroton.proxy.servers.proxy.ProxyServerManager;
+import net.md_5.bungee.api.CommandSender;
+
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 public class ProxyPluginImpl extends CommonProxyPlugin {
 
@@ -22,5 +26,10 @@ public class ProxyPluginImpl extends CommonProxyPlugin {
     @Override
     public ProxyServerManager getProxyServerManager() {
         return new BungeeProxyServerManager(bungeePlugin.getProxy());
+    }
+
+    @Override
+    public Collection<String> getPlayers() {
+        return bungeePlugin.getProxy().getPlayers().stream().map(CommandSender::getName).collect(Collectors.toList());
     }
 }

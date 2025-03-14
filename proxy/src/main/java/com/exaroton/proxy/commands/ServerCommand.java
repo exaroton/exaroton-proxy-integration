@@ -5,6 +5,7 @@ import com.exaroton.api.server.ServerStatus;
 import com.exaroton.proxy.CommonProxyPlugin;
 import com.exaroton.proxy.Constants;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -27,8 +28,8 @@ public abstract class ServerCommand extends Command<CommonProxyPlugin> {
     /**
      * Create a new command
      *
-     * @param plugin           The plugin
-     * @param name             The name of the subcommand
+     * @param plugin The plugin
+     * @param name   The name of the subcommand
      */
     public ServerCommand(CommonProxyPlugin plugin, String name) {
         super(plugin);
@@ -37,37 +38,46 @@ public abstract class ServerCommand extends Command<CommonProxyPlugin> {
 
     @Override
     public <T> LiteralArgumentBuilder<T> build(BuildContext<T> buildContext, LiteralArgumentBuilder<T> builder) {
+        ArgumentBuilder<T, ?> x = buildWithServer(buildContext, RequiredArgumentBuilder.<T, String>argument(ARGUMENT_SERVER, StringArgumentType.string())
+                .suggests(this::suggestServerName));
+
         return builder.then(LiteralArgumentBuilder.<T>literal(name)
                 .requires(source -> buildContext.mapSource(source).hasPermission("exaroton." + name))
-                .then(RequiredArgumentBuilder.<T, String>argument(ARGUMENT_SERVER, StringArgumentType.string())
-                        .suggests(this::suggestServerName)
-                        .executes(context -> {
-                            CommandSourceAccessor source = buildContext.mapSource(context.getSource());
-                            String serverInput = context.getArgument(ARGUMENT_SERVER, String.class);
-
-                            try {
-                                this.plugin.findServer(serverInput).thenAccept(server -> {
-                                    if (server.isEmpty()) {
-                                        source.sendFailure(Component.text("Failed to find a server with the name " + serverInput));
-                                        return;
-                                    }
-
-                                    try {
-                                        execute(context, buildContext, server.get());
-                                    } catch (Exception e) {
-                                        executionException(source, e);
-                                    }
-                                }).exceptionally(t -> {
-                                    executionException(source, t);
-                                    return null;
-                                });
-                            } catch (IOException e) {
-                                executionException(source, e);
-                            }
-                            return 1;
-                        })
-                )
+                .then(x)
         );
+    }
+
+    protected <T> ArgumentBuilder<T, ?> buildWithServer(BuildContext<T> buildContext, RequiredArgumentBuilder<T, ?> builder) {
+        return builder.executes(context -> this.executeWithServer(context, buildContext));
+    }
+
+    protected <T> int executeWithServer(
+            CommandContext<T> context,
+            BuildContext<T> buildContext
+    ) {
+        CommandSourceAccessor source = buildContext.mapSource(context.getSource());
+        String serverInput = context.getArgument(ARGUMENT_SERVER, String.class);
+
+        try {
+            this.plugin.findServer(serverInput).thenAccept(server -> {
+                if (server.isEmpty()) {
+                    source.sendFailure(Component.text("Failed to find a server with the name " + serverInput));
+                    return;
+                }
+
+                try {
+                    execute(context, buildContext, server.get());
+                } catch (Exception e) {
+                    executionException(source, e);
+                }
+            }).exceptionally(t -> {
+                executionException(source, t);
+                return null;
+            });
+        } catch (IOException e) {
+            executionException(source, e);
+        }
+        return 1;
     }
 
     private void executionException(CommandSourceAccessor source, Throwable t) {
@@ -77,18 +87,20 @@ public abstract class ServerCommand extends Command<CommonProxyPlugin> {
 
     /**
      * Execute the command
-     * @param context The command context
+     *
+     * @param context      The command context
      * @param buildContext The build context
-     * @param server The server
-     * @param <T> The command source type
+     * @param server       The server
+     * @param <T>          The command source type
      * @throws IOException If sending a request fails
      */
     protected abstract <T> void execute(CommandContext<T> context,
-                                       BuildContext<T> buildContext,
-                                       Server server) throws IOException;
+                                        BuildContext<T> buildContext,
+                                        Server server) throws IOException;
 
     /**
      * Get all server statuses that should be used for suggestions
+     *
      * @return The server statuses or an empty optional if all statuses should be used
      */
     protected abstract Optional<Set<ServerStatus>> getAllowableServerStatuses();

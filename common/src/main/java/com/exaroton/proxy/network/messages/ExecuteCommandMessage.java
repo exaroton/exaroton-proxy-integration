@@ -38,6 +38,7 @@ public class ExecuteCommandMessage extends Message<ExecuteCommandMessage> {
 
     @Override
     public void serialize(ByteArrayDataOutput output) {
+        output.writeUTF(playerName);
         output.writeInt(args.length);
         for (String arg : args) {
             output.writeUTF(arg);

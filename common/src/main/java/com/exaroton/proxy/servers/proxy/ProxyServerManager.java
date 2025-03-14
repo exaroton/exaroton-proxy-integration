@@ -10,6 +10,7 @@ import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Interface for managing servers in a proxy
@@ -122,5 +123,17 @@ public abstract class ProxyServerManager {
 
     private String getName(Server server) {
         return this.names.getOrDefault(server.getId(), server.getName());
+    }
+
+    /**
+     * Transfer a player to another server
+     * @param server server to transfer the player to
+     * @param playerNames players to transfer
+     */
+    public void transferPlayer(Server server, Set<String> playerNames) {
+        // TODO: send to backend server instead so different player connected to different proxies can be transferred
+        for (String player : playerNames) {
+            transferPlayer(server, player);
+        }
     }
 }

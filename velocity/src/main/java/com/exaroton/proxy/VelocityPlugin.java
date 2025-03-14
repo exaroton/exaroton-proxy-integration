@@ -11,9 +11,12 @@ import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
+import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 
 import java.nio.file.Path;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 public class VelocityPlugin extends CommonProxyPlugin {
     static {
@@ -55,5 +58,11 @@ public class VelocityPlugin extends CommonProxyPlugin {
     @Override
     public ProxyServerManager getProxyServerManager() {
         return new VelocityProxyServerManager(proxy);
+    }
+
+    @Override
+    public Collection<String> getPlayers() {
+
+        return proxy.getAllPlayers().stream().map(Player::getUsername).collect(Collectors.toList());
     }
 }
