@@ -1,10 +1,12 @@
 package com.exaroton.proxy.commands;
 
+import com.exaroton.api.server.Server;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * An interface for platform-agnostic command source access.
@@ -22,6 +24,13 @@ public abstract class CommandSourceAccessor {
      * @return The name of the player who executed the command, if applicable.
      */
     public abstract Optional<String> getPlayerName();
+
+    /**
+     * Transfer a list of players to a server
+     * @param server The server to transfer the players to.
+     * @param playerNames Set of player names to transfer.
+     */
+    public abstract void transferPlayers(Server server, Set<String> playerNames);
 
     /**
      * Get an adventure audience for the command source.

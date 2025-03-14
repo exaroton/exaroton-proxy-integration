@@ -17,7 +17,7 @@ public class ProxyPluginImpl extends CommonProxyPlugin {
 
     public BungeeMessageController getMessageController() {
         if (messageController == null) {
-            messageController = new BungeeMessageController(bungeePlugin);
+            messageController = new BungeeMessageController(bungeePlugin, this);
         }
 
         return messageController;

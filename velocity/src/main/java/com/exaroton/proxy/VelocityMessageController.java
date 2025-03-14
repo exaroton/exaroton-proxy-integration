@@ -4,16 +4,18 @@ import com.exaroton.proxy.commands.CommandSourceAccessor;
 import com.exaroton.proxy.network.ProxyMessageController;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.PluginMessageEvent;
+import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 
-public class VelocityMessageController extends ProxyMessageController<ServerConnection> {
+public class VelocityMessageController extends ProxyMessageController<ServerConnection, Player, VelocityPlugin> {
     private static final ChannelIdentifier CHANNEL_ID = MinecraftChannelIdentifier.from(Constants.CHANNEL_ID);
     private final ProxyServer proxy;
 
-    public VelocityMessageController(ProxyServer proxy) {
+    public VelocityMessageController(VelocityPlugin plugin, ProxyServer proxy) {
+        super(plugin);
         this.proxy = proxy;
         registerChannel();
     }
@@ -34,10 +36,15 @@ public class VelocityMessageController extends ProxyMessageController<ServerConn
         proxy.getCommandManager().executeAsync(new ServerConnectionCommandSource(source), cmdLine);
     }
 
+    @Override
+    protected String getPlayerName(Player player) {
+        return player.getUsername();
+    }
+
     @Subscribe
     public void onPluginMessage(PluginMessageEvent event) {
-        if (event.getSource() instanceof ServerConnection) {
-            handleMessage((ServerConnection) event.getSource(), event.getIdentifier().getId(), event.getData());
+        if (event.getSource() instanceof ServerConnection source) {
+            handleMessage(source, event.getIdentifier().getId(), event.getData(), source.getPlayer());
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.exaroton.proxy;
 
-import com.exaroton.proxy.network.*;
+import com.exaroton.proxy.network.Message;
+import com.exaroton.proxy.network.MessageController;
 import com.exaroton.proxy.network.id.NetworkId;
 import com.exaroton.proxy.network.messages.*;
 import org.bukkit.command.CommandSender;
@@ -10,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
-public class BukkitMessageController extends MessageController<Player> implements PluginMessageListener {
+public class BukkitMessageController extends MessageController<Player, Void> implements PluginMessageListener {
     private final BukkitPlugin plugin;
     private final HashMap<NetworkId, CommandSender> senders = new HashMap<>();
 
@@ -43,7 +44,7 @@ public class BukkitMessageController extends MessageController<Player> implement
     }
 
     @Override
-    protected void handleMessage(Player origin, Message<?> message) {
+    protected void handleMessage(Player origin, Message<?> message, Void v) {
         var source = senders.get(message.getCommandExecutionId());
 
         if (source == null) {
@@ -59,20 +60,23 @@ public class BukkitMessageController extends MessageController<Player> implement
             }
             case TextComponentMessage textComponentMessage ->
                     plugin.audience(source).sendMessage(textComponentMessage.getComponent());
-            case TransferPlayersMessage transferPlayersMessage -> {
-                for (String player : transferPlayersMessage.getPlayers()) {
+            case TransferPlayersP2SMessage transferPlayersP2SMessage -> {
+                for (String player : transferPlayersP2SMessage.getPlayers()) {
                     var target = plugin.getServer().getPlayerExact(player);
                     if (target == null) {
                         Constants.LOG.error("Player {} not found", player);
                         continue;
                     }
 
-                    Constants.LOG.info("Transferring player {} to server {}", player, transferPlayersMessage.getServer());
-                    // TODO: Send bungee message?
-                    // or send our own message to the proxy?
+                    Constants.LOG.info("Transferring player {} to server {}", player, transferPlayersP2SMessage.getServerId());
+                    send(target, new TransferPlayerS2PMessage(
+                            message.getCommandExecutionId(),
+                            transferPlayersP2SMessage.getServerId()
+                    ));
+                    senders.remove(message.getCommandExecutionId());
                 }
             }
-            case FreeExecutionIdMessage freeExecutionIdMessage -> senders.remove(freeExecutionIdMessage.getCommandExecutionId());
+            case FreeExecutionIdMessage ignored -> senders.remove(message.getCommandExecutionId());
             default -> Constants.LOG.error("Unknown message type: {}", message.getType());
         }
     }
@@ -85,6 +89,6 @@ public class BukkitMessageController extends MessageController<Player> implement
 
     @Override
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte @NotNull [] message) {
-        handleMessage(player, channel, message);
+        handleMessage(player, channel, message, null);
     }
 }

@@ -7,7 +7,7 @@ import com.google.common.io.ByteStreams;
  * A controller for sending and receiving plugin messages
  * @param <Connection> connection type
  */
-public abstract class MessageController<Connection> {
+public abstract class MessageController<Connection, Player> {
     /**
      * Send a message to the target
      * @param target message receiver
@@ -29,7 +29,7 @@ public abstract class MessageController<Connection> {
      * @param origin message sender
      * @param message message to handle
      */
-    protected abstract void handleMessage(Connection origin, Message<?> message);
+    protected abstract void handleMessage(Connection origin, Message<?> message, Player player);
 
     /**
      * Handle a message
@@ -37,12 +37,12 @@ public abstract class MessageController<Connection> {
      * @param channel channel id
      * @param data message data
      */
-    protected final void handleMessage(Connection origin, String channel, byte[] data) {
+    protected final void handleMessage(Connection origin, String channel, byte[] data, Player player) {
         if (!channel.equalsIgnoreCase(Constants.CHANNEL_ID)) {
             return;
         }
 
-        handleMessage(origin, MessageType.deserialize(ByteStreams.newDataInput(data)));
+        handleMessage(origin, MessageType.deserialize(ByteStreams.newDataInput(data)), player);
     }
 
     /**

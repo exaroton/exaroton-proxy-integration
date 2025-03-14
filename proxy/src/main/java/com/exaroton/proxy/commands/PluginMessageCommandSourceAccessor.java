@@ -1,7 +1,7 @@
 package com.exaroton.proxy.commands;
 
-import com.exaroton.proxy.network.id.CommandExecutionId;
 import com.exaroton.proxy.network.ProxyMessageController;
+import com.exaroton.proxy.network.id.CommandExecutionId;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.audience.MessageType;
 import net.kyori.adventure.chat.ChatType;
@@ -13,16 +13,17 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.Cleaner;
 import java.util.Optional;
+import java.util.Set;
 
 public class PluginMessageCommandSourceAccessor<Server> extends CommandSourceAccessor {
     private static final Cleaner cleaner = Cleaner.create();
 
     private static class State<Server> implements Runnable {
-        private final ProxyMessageController<Server> controller;
+        private final ProxyMessageController<Server, ?, ?> controller;
         private final Server server;
         private final CommandExecutionId id;
 
-        State(ProxyMessageController<Server> controller, Server server, CommandExecutionId id) {
+        State(ProxyMessageController<Server, ?, ?> controller, Server server, CommandExecutionId id) {
             this.controller = controller;
             this.server = server;
             this.id = id;
@@ -33,13 +34,13 @@ public class PluginMessageCommandSourceAccessor<Server> extends CommandSourceAcc
         }
     }
 
-    private final ProxyMessageController<Server> controller;
+    private final ProxyMessageController<Server, ?, ?> controller;
     private final Server server;
     @Nullable
     private final String playerName;
     private final CommandExecutionId id;
 
-    public PluginMessageCommandSourceAccessor(ProxyMessageController<Server> controller,
+    public PluginMessageCommandSourceAccessor(ProxyMessageController<Server, ?, ?> controller,
                                               Server server,
                                               @Nullable String playerName,
                                               CommandExecutionId id) {
@@ -59,6 +60,11 @@ public class PluginMessageCommandSourceAccessor<Server> extends CommandSourceAcc
     @Override
     public Optional<String> getPlayerName() {
         return Optional.ofNullable(playerName);
+    }
+
+    @Override
+    public void transferPlayers(com.exaroton.api.server.Server server, Set<String> playerNames) {
+        controller.transferPlayers(this.server, id, server.getId(), playerNames);
     }
 
     @Override

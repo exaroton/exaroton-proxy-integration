@@ -10,13 +10,7 @@ import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
-public class ServerConnectionCommandSource implements CommandSource {
-    private final CommandSourceAccessor source;
-
-    public ServerConnectionCommandSource(CommandSourceAccessor source) {
-        this.source = source;
-    }
-
+public record ServerConnectionCommandSource(CommandSourceAccessor source) implements CommandSource {
     @Override
     public Tristate getPermissionValue(String permission) {
         return source.hasPermission(permission) ? Tristate.TRUE : Tristate.FALSE;

@@ -20,6 +20,10 @@ public class CommandSourceCommandSender implements CommandSender {
         this.source = source;
     }
 
+    public CommandSourceAccessor getCommandSource() {
+        return source;
+    }
+
     @Override
     public String getName() {
         return null;

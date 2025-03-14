@@ -64,13 +64,13 @@ public abstract class AbstractTransferCommand extends ServerCommand {
                     .append(Components.addressText(server))
                     .append(Component.text("."))
             );
-            plugin.getProxyServerManager().transferPlayer(server, playerNames);
+            source.transferPlayers(server, playerNames);
             return;
         }
 
         new WaitForStatusSubscriber(subscribers.getListener(server), source, ServerStatus.ONLINE)
                 .subscribe()
-                .thenAccept(s -> plugin.getProxyServerManager().transferPlayer(server, playerNames));
+                .thenAccept(s -> source.transferPlayers(server, playerNames));
 
         if (server.hasStatus(StartCommand.STARTABLE_STATUSES)) {
             source.sendSuccess(Component.text("Starting server")

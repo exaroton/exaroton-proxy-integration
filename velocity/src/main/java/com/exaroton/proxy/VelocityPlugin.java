@@ -36,7 +36,7 @@ public class VelocityPlugin extends CommonProxyPlugin {
         init();
 
         registerCommands();
-        proxy.getEventManager().register(this, new VelocityMessageController(proxy));
+        proxy.getEventManager().register(this, new VelocityMessageController(this, proxy));
     }
 
     protected void registerCommands() {
@@ -47,7 +47,7 @@ public class VelocityPlugin extends CommonProxyPlugin {
                 .plugin(this)
                 .build();
 
-        var context = new VelocityBuildContext();
+        var context = new VelocityBuildContext(this);
         var builder = LiteralArgumentBuilder.<CommandSource>literal("exaroton");
 
         for (var command : getCommands()) {

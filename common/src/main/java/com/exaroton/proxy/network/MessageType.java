@@ -13,7 +13,8 @@ public final class MessageType<T extends Message<T>> {
     public static final MessageType<PermissionRequestMessage> PERMISSION_REQUEST = new MessageType<>("permission_request", PermissionRequestMessage::new);
     public static final MessageType<PermissionResponseMessage> PERMISSION_RESPONSE = new MessageType<>("permission_response", PermissionResponseMessage::new);
     public static final MessageType<TextComponentMessage> TEXT_COMPONENT = new MessageType<>("text_component", TextComponentMessage::new);
-    public static final MessageType<TransferPlayersMessage> TRANSFER_PLAYERS = new MessageType<>("transfer_players", TransferPlayersMessage::new);
+    public static final MessageType<TransferPlayersP2SMessage> TRANSFER_PLAYERS_P2S = new MessageType<>("transfer_players_p2s", TransferPlayersP2SMessage::new);
+    public static final MessageType<TransferPlayerS2PMessage> TRANSFER_PLAYER_S2P = new MessageType<>("transfer_player_s2p", TransferPlayerS2PMessage::new);
     public static final MessageType<FreeExecutionIdMessage> FREE_EXECUTION_ID = new MessageType<>("free_execution_id", FreeExecutionIdMessage::new);
 
     private final String slug;

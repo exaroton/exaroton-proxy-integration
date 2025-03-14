@@ -130,8 +130,7 @@ public abstract class ProxyServerManager {
      * @param server server to transfer the player to
      * @param playerNames players to transfer
      */
-    public void transferPlayer(Server server, Set<String> playerNames) {
-        // TODO: send to backend server instead so different player connected to different proxies can be transferred
+    public void transferPlayers(Server server, Set<String> playerNames) {
         for (String player : playerNames) {
             transferPlayer(server, player);
         }

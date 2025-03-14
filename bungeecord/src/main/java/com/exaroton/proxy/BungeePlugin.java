@@ -54,7 +54,7 @@ public class BungeePlugin extends Plugin {
 
     protected void registerCommands() {
         CommandDispatcher<CommandSender> dispatcher = new CommandDispatcher<>();
-        var context = new BungeeBuildContext(this);
+        var context = new BungeeBuildContext(this, commonPlugin);
 
         commonPlugin.registerCommands(dispatcher, context);
 

@@ -1,12 +1,16 @@
 package com.exaroton.proxy.commands;
 
+import com.exaroton.api.server.Server;
+import com.exaroton.proxy.VelocityPlugin;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.Player;
 import net.kyori.adventure.audience.Audience;
 
 import java.util.Optional;
+import java.util.Set;
 
 public class VelocityCommandSourceAccessor extends CommandSourceAccessor {
+    private final VelocityPlugin velocityPlugin;
     /**
      * The original velocity command source
      */
@@ -15,9 +19,11 @@ public class VelocityCommandSourceAccessor extends CommandSourceAccessor {
     /**
      * Create a new velocity command source accessor.
      *
-     * @param source The original velocity command source.
+     * @param source         The original velocity command source.
+     * @param velocityPlugin The velocity plugin.
      */
-    public VelocityCommandSourceAccessor(CommandSource source) {
+    public VelocityCommandSourceAccessor(VelocityPlugin velocityPlugin, CommandSource source) {
+        this.velocityPlugin = velocityPlugin;
         this.source = source;
     }
 
@@ -32,6 +38,11 @@ public class VelocityCommandSourceAccessor extends CommandSourceAccessor {
             return Optional.of(((Player) source).getUsername());
         }
         return Optional.empty();
+    }
+
+    @Override
+    public void transferPlayers(Server server, Set<String> playerNames) {
+        velocityPlugin.getProxyServerManager().transferPlayers(server, playerNames);
     }
 
     @Override

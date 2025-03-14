@@ -1,7 +1,6 @@
 package com.exaroton.proxy.network;
 
 import com.exaroton.proxy.network.id.CommandExecutionId;
-import com.exaroton.proxy.network.id.NetworkId;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
@@ -9,11 +8,11 @@ import com.google.common.io.ByteStreams;
 public abstract class Message<This extends Message<This>> {
     private final CommandExecutionId commandExecutionId;
 
-    protected Message(CommandExecutionId id) {
+    public Message(CommandExecutionId id) {
         this.commandExecutionId = id;
     }
 
-    protected Message(ByteArrayDataInput input) {
+    public Message(ByteArrayDataInput input) {
         this.commandExecutionId = new CommandExecutionId(input);
     }
 
