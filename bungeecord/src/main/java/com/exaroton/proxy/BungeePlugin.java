@@ -21,7 +21,7 @@ public class BungeePlugin extends Plugin {
 
     @Override
     public void onEnable() {
-        commonPlugin.init();
+        commonPlugin.setUp().join();
         adventure = BungeeAudiences.create(this);
         registerCommands();
         getProxy().getPluginManager().registerListener(this, commonPlugin.getMessageController());
@@ -33,6 +33,7 @@ public class BungeePlugin extends Plugin {
             adventure.close();
             adventure = null;
         }
+        commonPlugin.tearDown().join();
     }
 
     private BungeeAudiences adventure() {

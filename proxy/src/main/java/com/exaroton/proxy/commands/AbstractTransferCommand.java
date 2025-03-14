@@ -4,7 +4,7 @@ import com.exaroton.api.server.Server;
 import com.exaroton.api.server.ServerStatus;
 import com.exaroton.proxy.CommonProxyPlugin;
 import com.exaroton.proxy.Components;
-import com.exaroton.proxy.Sets;
+import com.exaroton.proxy.StatusGroups;
 import com.exaroton.proxy.servers.WaitForStatusSubscriber;
 import com.mojang.brigadier.context.CommandContext;
 import net.kyori.adventure.text.Component;
@@ -14,19 +14,6 @@ import java.util.Optional;
 import java.util.Set;
 
 public abstract class AbstractTransferCommand extends ServerCommand {
-    protected static final Set<ServerStatus> STARTING_STATUSES = Set.of(
-            ServerStatus.STARTING,
-            ServerStatus.LOADING,
-            ServerStatus.RESTARTING,
-            ServerStatus.PREPARING
-    );
-
-    protected static final Set<ServerStatus> SWITCHABLE_STATUSES = Sets.union(
-            StartCommand.STARTABLE_STATUSES,
-            STARTING_STATUSES,
-            Set.of(ServerStatus.ONLINE)
-    );
-
     /**
      * Create a new command
      *
@@ -46,8 +33,8 @@ public abstract class AbstractTransferCommand extends ServerCommand {
     ) throws IOException {
         CommandSourceAccessor source = buildContext.mapSource(context.getSource());
 
-        if (!server.hasStatus(SWITCHABLE_STATUSES)) {
-            source.sendFailure(Components.incorrectStatus(server, SWITCHABLE_STATUSES, "switched to"));
+        if (!server.hasStatus(StatusGroups.SWITCHABLE)) {
+            source.sendFailure(Components.incorrectStatus(server, StatusGroups.SWITCHABLE, "switched to"));
             return;
         }
 
@@ -72,7 +59,7 @@ public abstract class AbstractTransferCommand extends ServerCommand {
                 .subscribe()
                 .thenAccept(s -> source.transferPlayers(server, playerNames));
 
-        if (server.hasStatus(StartCommand.STARTABLE_STATUSES)) {
+        if (server.hasStatus(StatusGroups.STARTABLE)) {
             source.sendSuccess(Component.text("Starting server")
                     .appendSpace()
                     .append(Components.addressText(server))
@@ -86,6 +73,6 @@ public abstract class AbstractTransferCommand extends ServerCommand {
 
     @Override
     protected Optional<Set<ServerStatus>> getAllowableServerStatuses() {
-        return Optional.of(SWITCHABLE_STATUSES);
+        return Optional.of(StatusGroups.SWITCHABLE);
     }
 }

@@ -21,6 +21,8 @@ import java.util.concurrent.TimeUnit;
  * A controller for handling plugin messages on a proxy
  *
  * @param <ServerConnection> server connection type to send/receive messages from/to
+ * @param <PlayerConnection> player connection type used to get player names
+ * @param <Common> Type of the common plugin
  */
 public abstract class ProxyMessageController<
         ServerConnection,
@@ -106,5 +108,4 @@ public abstract class ProxyMessageController<
     protected abstract void executeCommand(CommandSourceAccessor source, String[] args);
 
     protected abstract String getPlayerName(PlayerConnection player);
-
 }

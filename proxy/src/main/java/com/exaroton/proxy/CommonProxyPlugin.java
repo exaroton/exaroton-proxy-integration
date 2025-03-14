@@ -5,6 +5,7 @@ import com.electronwill.nightconfig.core.serde.ObjectDeserializer;
 import com.electronwill.nightconfig.core.serde.ObjectSerializer;
 import com.exaroton.api.ExarotonClient;
 import com.exaroton.api.server.Server;
+import com.exaroton.api.server.ServerStatus;
 import com.exaroton.proxy.commands.*;
 import com.exaroton.proxy.platform.Services;
 import com.exaroton.proxy.servers.ProxyServerManager;
@@ -14,11 +15,9 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 public abstract class CommonProxyPlugin {
     protected ExarotonClient apiClient;
@@ -27,18 +26,11 @@ public abstract class CommonProxyPlugin {
     protected ServerCache serverCache;
     protected StatusSubscriberManager statusSubscribers;
 
-    public void init() {
-        configFile = Services.platform().getConfig()
-                .autoreload()
-                .onAutoReload(this::onConfigLoaded)
-                .autosave()
-                .build();
-        configFile.load();
-        migrateOldConfigFields();
-        onConfigLoaded(false);
-
-        ObjectSerializer.standard().serializeFields(config, configFile);
-        configFile.save();
+    /**
+     * Set up the plugin initially and start servers if configured. This should be called during proxy startup.
+     */
+    public CompletableFuture<Void> setUp() {
+        initializeConfig();
 
         if (config.apiToken == null || config.apiToken.isEmpty() || config.apiToken.equals("example-token")) {
             throw new IllegalStateException("No API token provided. Please set the API token in the configuration file.");
@@ -48,6 +40,14 @@ public abstract class CommonProxyPlugin {
                 + Services.platform().getPlatformName() + "/" + Services.platform().getPluginVersion());
         serverCache = new ServerCache(apiClient);
         statusSubscribers = new StatusSubscriberManager(this, serverCache, getProxyServerManager());
+        return autoStart();
+    }
+
+    /**
+     * Tear down the plugin and stop servers if configured. This should be called during proxy shutdown.
+     */
+    public CompletableFuture<Void> tearDown() {
+        return autoStop().orTimeout(1, TimeUnit.MINUTES);
     }
 
     /**
@@ -122,6 +122,20 @@ public abstract class CommonProxyPlugin {
      */
     public abstract Collection<String> getPlayers();
 
+    protected void initializeConfig() {
+        configFile = Services.platform().getConfig()
+                .autoreload()
+                .onAutoReload(this::onConfigLoaded)
+                .autosave()
+                .build();
+        configFile.load();
+        migrateOldConfigFields();
+        onConfigLoaded(false);
+
+        ObjectSerializer.standard().serializeFields(config, configFile);
+        configFile.save();
+    }
+
     protected void migrateOldConfigFields() {
         for (Map.Entry<String, String> entry : Map.of(
                 "watch-servers", "watchServers",
@@ -154,6 +168,95 @@ public abstract class CommonProxyPlugin {
 
         if (log) {
             Constants.LOG.info("Reloaded configuration.");
+        }
+    }
+
+    public CompletableFuture<Void> autoStart() {
+        Collection<CompletableFuture<?>> futures = new HashSet<>();
+        if (config.autoStartServers.enabled) {
+            Constants.LOG.info("Starting servers...");
+            for (var server : config.autoStartServers.servers) {
+                futures.add(autoStart(server).exceptionally(t -> {
+                    Constants.LOG.error("Failed to start server {}: {}", server, t.getMessage(), t);
+                    return null;
+                }));
+            }
+        }
+        return CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new));
+    }
+
+    protected CompletableFuture<Void> autoStart(String query) {
+        try {
+            return findServer(query).thenCompose(server -> {
+                if (server.isEmpty()) {
+                    Constants.LOG.error("Failed to start server {}: Server not found", query);
+                    return CompletableFuture.completedFuture(null);
+                }
+
+                if (server.get().hasStatus(ServerStatus.ONLINE)) {
+                    Constants.LOG.info("Server {} is already online.", query);
+                    getProxyServerManager().addServer(server.get());
+                    return CompletableFuture.completedFuture(null);
+                }
+
+                getStatusSubscribers().addProxyStatusSubscriber(server.get(), null);
+
+                if (server.get().hasStatus(StatusGroups.STARTING)) {
+                    Constants.LOG.info("Server {} is already starting.", query);
+                    return CompletableFuture.completedFuture(null);
+                }
+
+                try {
+                    return server.get().start().thenAccept(s -> Constants.LOG.info("Requested start for server {}.", query));
+                } catch (IOException e) {
+                    return CompletableFuture.failedFuture(e);
+                }
+            });
+        } catch (IOException e) {
+            return CompletableFuture.failedFuture(e);
+        }
+    }
+
+    public CompletableFuture<Void> autoStop() {
+        Collection<CompletableFuture<?>> futures = new HashSet<>();
+        if (config.autoStopServers.enabled) {
+            Constants.LOG.info("Stopping servers...");
+            for (var item : config.autoStopServers.servers) {
+                futures.add(autoStop(item).exceptionally(t -> {
+                    Constants.LOG.error("Failed to stop server {}: {}", item, t.getMessage(), t);
+                    return null;
+                }));
+            }
+        }
+        return CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new));
+    }
+
+    protected CompletableFuture<Void> autoStop(String query) {
+        try {
+            return findServer(query).thenCompose(server -> {
+                if (server.isEmpty()) {
+                    Constants.LOG.error("Failed to stop server {}: Server not found", query);
+                    return CompletableFuture.completedFuture(null);
+                }
+
+                if (server.get().hasStatus(ServerStatus.GROUP_OFFLINE)) {
+                    Constants.LOG.info("Server {} is already offline.", query);
+                    return CompletableFuture.completedFuture(null);
+                }
+
+                if (server.get().hasStatus(ServerStatus.GROUP_STOPPING)) {
+                    Constants.LOG.info("Server {} is already stopping.", query);
+                    return CompletableFuture.completedFuture(null);
+                }
+
+                try {
+                    return server.get().stop().thenAccept(s -> Constants.LOG.info("Requested stop for server {}.", query));
+                } catch (IOException e) {
+                    return CompletableFuture.failedFuture(e);
+                }
+            });
+        } catch (IOException e) {
+            return CompletableFuture.failedFuture(e);
         }
     }
 

@@ -8,8 +8,10 @@ import com.google.inject.Inject;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.velocitypowered.api.command.BrigadierCommand;
 import com.velocitypowered.api.command.CommandSource;
+import com.velocitypowered.api.event.EventTask;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
+import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
@@ -32,11 +34,15 @@ public class VelocityPlugin extends CommonProxyPlugin {
     }
 
     @Subscribe
-    public void onProxyInitialization(ProxyInitializeEvent event) {
-        init();
-
+    public EventTask onProxyInitialization(ProxyInitializeEvent event) {
         registerCommands();
         proxy.getEventManager().register(this, new VelocityMessageController(this, proxy));
+        return EventTask.resumeWhenComplete(setUp());
+    }
+
+    @Subscribe
+    public EventTask onProxyShutdown(ProxyShutdownEvent event) {
+        return EventTask.resumeWhenComplete(tearDown());
     }
 
     protected void registerCommands() {

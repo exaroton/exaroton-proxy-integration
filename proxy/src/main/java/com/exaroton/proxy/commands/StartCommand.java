@@ -4,6 +4,7 @@ import com.exaroton.api.server.Server;
 import com.exaroton.api.server.ServerStatus;
 import com.exaroton.proxy.CommonProxyPlugin;
 import com.exaroton.proxy.Components;
+import com.exaroton.proxy.StatusGroups;
 import com.exaroton.proxy.servers.WaitForStatusSubscriber;
 import com.mojang.brigadier.context.CommandContext;
 import net.kyori.adventure.text.Component;
@@ -13,11 +14,6 @@ import java.util.Optional;
 import java.util.Set;
 
 public class StartCommand extends ServerCommand {
-    public static final Set<ServerStatus> STARTABLE_STATUSES = Set.of(
-            ServerStatus.OFFLINE,
-            ServerStatus.CRASHED
-    );
-
     /**
      * Create a new command
      *
@@ -33,8 +29,8 @@ public class StartCommand extends ServerCommand {
                               Server server) throws IOException {
         CommandSourceAccessor source = buildContext.mapSource(context.getSource());
 
-        if (!server.hasStatus(STARTABLE_STATUSES)) {
-            source.sendFailure(Components.incorrectStatus(server, STARTABLE_STATUSES, "started"));
+        if (!server.hasStatus(StatusGroups.STARTABLE)) {
+            source.sendFailure(Components.incorrectStatus(server, StatusGroups.STARTABLE, "started"));
             return;
         }
 
@@ -53,6 +49,6 @@ public class StartCommand extends ServerCommand {
 
     @Override
     protected Optional<Set<ServerStatus>> getAllowableServerStatuses() {
-        return Optional.of(STARTABLE_STATUSES);
+        return Optional.of(StatusGroups.STARTABLE);
     }
 }
