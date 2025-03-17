@@ -20,12 +20,33 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Common class for the proxy plugins
+ */
 public abstract class CommonProxyPlugin {
+    /**
+     * exaroton API client
+     */
     protected ExarotonClient apiClient;
+    /**
+     * Configuration file
+     */
     protected FileConfig configFile;
+    /**
+     * Parsed configuration object
+     */
     protected Configuration config = new Configuration();
+    /**
+     * Server cache
+     */
     protected ServerCache serverCache;
+    /**
+     * Manager for server status subscribers
+     */
     protected StatusSubscriberManager statusSubscribers;
+    /**
+     * Manager for proxy servers
+     */
     protected ProxyServerManager<?> proxyServerManager;
 
     /**

@@ -27,6 +27,16 @@ public abstract class AbstractTransferCommand extends ServerCommand {
         super(plugin, name);
     }
 
+    /**
+     * Execute the command
+     * @param context The command context
+     * @param buildContext The build context
+     * @param server The server to transfer players to
+     * @param playerNames The names of the players to transfer
+     * @param subject A string describing who will be transferred (e.g. "You" or "The players")
+     * @param <T> The type of the command source
+     * @throws IOException If an error occurs while transferring players
+     */
     protected <T> void execute(
             CommandContext<T> context,
             BuildContext<T> buildContext,

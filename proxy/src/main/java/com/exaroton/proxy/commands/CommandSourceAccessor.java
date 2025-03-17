@@ -9,9 +9,17 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * An interface for platform-agnostic command source access.
+ * Abstract base class for platform-agnostic command source access.
  */
 public abstract class CommandSourceAccessor {
+
+    /**
+     * Create a new CommandSourceAccessor.
+     */
+    public CommandSourceAccessor() {
+
+    }
+
     /**
      * Checks if the source has the given permission.
      * @param permission The permission to check.
