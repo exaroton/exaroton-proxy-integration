@@ -43,7 +43,7 @@ public abstract class CommonProxyPlugin {
                 + Services.platform().getPlatformName() + "/" + Services.platform().getPluginVersion());
         serverCache = new ServerCache(apiClient);
         proxyServerManager = createProxyServerManager();
-        statusSubscribers = new StatusSubscriberManager(this, serverCache, getProxyServerManager());
+        statusSubscribers = new StatusSubscriberManager(serverCache, getProxyServerManager());
 
         return loadServers().thenCompose(x -> autoStart());
     }
@@ -53,6 +53,7 @@ public abstract class CommonProxyPlugin {
      * @return a future that completes when tear down is done
      */
     public CompletableFuture<Void> tearDown() {
+        statusSubscribers.disconnectAll();
         return autoStop().orTimeout(1, TimeUnit.MINUTES);
     }
 

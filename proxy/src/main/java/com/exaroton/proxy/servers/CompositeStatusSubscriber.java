@@ -74,4 +74,11 @@ public class CompositeStatusSubscriber implements ServerStatusSubscriber {
             subscriber.handleStatusUpdate(oldServer, newServer);
         }
     }
+
+    /**
+     * Unsubscribe from the server
+     */
+    public void disconnect() {
+        server.unsubscribe();
+    }
 }
