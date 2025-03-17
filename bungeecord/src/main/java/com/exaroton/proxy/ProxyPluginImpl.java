@@ -24,7 +24,7 @@ public class ProxyPluginImpl extends CommonProxyPlugin {
     }
 
     @Override
-    public ProxyServerManager getProxyServerManager() {
+    public ProxyServerManager<?> createProxyServerManager() {
         return new BungeeProxyServerManager(bungeePlugin.getProxy());
     }
 

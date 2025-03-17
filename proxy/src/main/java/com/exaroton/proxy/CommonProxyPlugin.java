@@ -1,6 +1,7 @@
 package com.exaroton.proxy;
 
 import com.electronwill.nightconfig.core.file.FileConfig;
+import com.electronwill.nightconfig.core.io.WritingMode;
 import com.electronwill.nightconfig.core.serde.ObjectDeserializer;
 import com.electronwill.nightconfig.core.serde.ObjectSerializer;
 import com.exaroton.api.ExarotonClient;
@@ -25,6 +26,7 @@ public abstract class CommonProxyPlugin {
     protected Configuration config = new Configuration();
     protected ServerCache serverCache;
     protected StatusSubscriberManager statusSubscribers;
+    protected ProxyServerManager<?> proxyServerManager;
 
     /**
      * Set up the plugin initially and start servers if configured. This should be called during proxy startup.
@@ -39,8 +41,10 @@ public abstract class CommonProxyPlugin {
         apiClient = new ExarotonClient(config.apiToken).setUserAgent("proxy-plugin/"
                 + Services.platform().getPlatformName() + "/" + Services.platform().getPluginVersion());
         serverCache = new ServerCache(apiClient);
+        proxyServerManager = createProxyServerManager();
         statusSubscribers = new StatusSubscriberManager(this, serverCache, getProxyServerManager());
-        return autoStart();
+
+        return loadServers().thenCompose(x -> autoStart());
     }
 
     /**
@@ -89,7 +93,7 @@ public abstract class CommonProxyPlugin {
      * @param name server name
      * @return the server if it was found or an empty optional
      */
-    public CompletableFuture<Optional<Server>> findServer(String name) throws IOException {
+    public final CompletableFuture<Optional<Server>> findServer(String name) throws IOException {
         return findServer(name, true);
     }
 
@@ -98,7 +102,7 @@ public abstract class CommonProxyPlugin {
      *
      * @return all available exaroton servers
      */
-    public CompletableFuture<Collection<Server>> getServers() throws IOException {
+    public final CompletableFuture<Collection<Server>> getServers() throws IOException {
         return serverCache.getServers();
     }
 
@@ -106,7 +110,7 @@ public abstract class CommonProxyPlugin {
      * Get the status subscriber manager
      * @return the status subscriber manager
      */
-    public StatusSubscriberManager getStatusSubscribers() {
+    public final StatusSubscriberManager getStatusSubscribers() {
         return statusSubscribers;
     }
 
@@ -114,7 +118,15 @@ public abstract class CommonProxyPlugin {
      * Get the proxy server manager
      * @return an implementation of IProxyServerManager for this proxy
      */
-    public abstract ProxyServerManager getProxyServerManager();
+    public final ProxyServerManager<?> getProxyServerManager() {
+        return proxyServerManager;
+    }
+
+    /**
+     * Create a new proxy server manager
+     * @return an implementation of IProxyServerManager for this proxy
+     */
+    protected abstract ProxyServerManager<?> createProxyServerManager();
 
     /**
      * Get a list of all players currently connected to the proxy
@@ -127,6 +139,7 @@ public abstract class CommonProxyPlugin {
                 .autoreload()
                 .onAutoReload(this::onConfigLoaded)
                 .autosave()
+                .writingMode(WritingMode.REPLACE_ATOMIC)
                 .build();
         configFile.load();
         migrateOldConfigFields();
@@ -171,6 +184,80 @@ public abstract class CommonProxyPlugin {
         }
     }
 
+    /**
+     * Load the servers from the config file to allow using their names as aliases. If the watch servers option is
+     * enabled a status listener will be registered for each server that removes the server when it goes offline and
+     * adds it back when it comes online.
+     * @return a future that completes when all servers have been loaded
+     */
+    public CompletableFuture<Void> loadServers() {
+        var future = getProxyServerManager().loadServers(this);
+        return future.thenCompose(x -> this.watchServers());
+    }
+
+    /**
+     * Watch all exaroton servers from the proxy if enabled
+     * @return a future that completes when watching has started
+     */
+    private CompletableFuture<Void> watchServers() {
+        if (!config.watchServers) {
+            return CompletableFuture.completedFuture(null);
+        }
+
+        var serverManager = getProxyServerManager();
+        var futures = new ArrayList<CompletableFuture<Void>>();
+
+        for (String name : serverManager.getNames()) {
+            var address = serverManager.getAddress(name).orElse(null);
+            if (address == null) {
+                continue;
+            }
+
+            futures.add(watchServer(serverManager, address, name)
+                    .exceptionally(t -> {
+                Constants.LOG.error("Failed to watch server {}: {}", name, t.getMessage(), t);
+                return null;
+            }));
+        }
+
+        return CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new));
+    }
+
+    /**
+     * Watch a single server for status changes
+     * @param serverManager the server manager to add/remove the server from
+     * @param address the address of the server
+     * @param name the name of the server
+     * @return A future that completes when the watching has started
+     */
+    private CompletableFuture<Void> watchServer(ProxyServerManager<?> serverManager, String address, String name) {
+        try {
+            return findServer(address, false).thenAccept(optionalServer -> {
+                if (optionalServer.isEmpty()) {
+                    return;
+                }
+                Server server = optionalServer.get();
+
+                Constants.LOG.info("Watching server {} for status changes.", name);
+                serverManager.removeServer(server);
+                if (server.hasStatus(ServerStatus.ONLINE)) {
+                    serverManager.addServer(server);
+                } else {
+                    Constants.LOG.info("Removing server {} from proxy because it is not online.", name);
+                }
+
+                statusSubscribers.addProxyStatusSubscriber(server);
+            });
+        } catch (IOException e) {
+            return CompletableFuture.failedFuture(e);
+        }
+    }
+
+    /**
+     * Start servers that are configured to be started automatically
+     * @return a future that completes when all start requests have been sent. This method does not wait for the
+     * server to go online.
+     */
     public CompletableFuture<Void> autoStart() {
         Collection<CompletableFuture<?>> futures = new HashSet<>();
         if (config.autoStartServers.enabled) {
@@ -185,9 +272,15 @@ public abstract class CommonProxyPlugin {
         return CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new));
     }
 
-    protected CompletableFuture<Void> autoStart(String query) {
+    /**
+     * Automatically start a single server by name, address or id
+     * @param query server name, address or id
+     * @return A future that completes when the start request has been sent. This method does not wait for the
+     * servers to go online.
+     */
+    private CompletableFuture<Void> autoStart(String query) {
         try {
-            return findServer(query).thenCompose(server -> {
+            return findServer(query, false).thenCompose(server -> {
                 if (server.isEmpty()) {
                     Constants.LOG.error("Failed to start server {}: Server not found", query);
                     return CompletableFuture.completedFuture(null);
@@ -199,7 +292,7 @@ public abstract class CommonProxyPlugin {
                     return CompletableFuture.completedFuture(null);
                 }
 
-                getStatusSubscribers().addProxyStatusSubscriber(server.get(), null);
+                getStatusSubscribers().addProxyStatusSubscriber(server.get());
 
                 if (server.get().hasStatus(StatusGroups.STARTING)) {
                     Constants.LOG.info("Server {} is already starting.", query);
@@ -217,6 +310,11 @@ public abstract class CommonProxyPlugin {
         }
     }
 
+    /**
+     * Stop servers that are configured to be stopped automatically
+     * @return A future that completes when all stop requests have been sent. This method does not wait for the
+     * servers to go offline.
+     */
     public CompletableFuture<Void> autoStop() {
         Collection<CompletableFuture<?>> futures = new HashSet<>();
         if (config.autoStopServers.enabled) {
@@ -231,9 +329,15 @@ public abstract class CommonProxyPlugin {
         return CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new));
     }
 
-    protected CompletableFuture<Void> autoStop(String query) {
+    /**
+     * Automatically stop a single server by name, address or id
+     * @param query server name, address or id
+     * @return A future that completes when the stop request has been sent. This method does not wait for the
+     * server to go offline.
+     */
+    private CompletableFuture<Void> autoStop(String query) {
         try {
-            return findServer(query).thenCompose(server -> {
+            return findServer(query, false).thenCompose(server -> {
                 if (server.isEmpty()) {
                     Constants.LOG.error("Failed to stop server {}: Server not found", query);
                     return CompletableFuture.completedFuture(null);

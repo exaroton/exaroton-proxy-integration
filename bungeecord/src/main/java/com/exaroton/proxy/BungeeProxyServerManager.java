@@ -6,17 +6,14 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 
 import java.net.InetSocketAddress;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collection;
 import java.util.Optional;
 
 /**
  * Bungee implementation of the proxy server manager
  */
-public class BungeeProxyServerManager extends ProxyServerManager {
+public class BungeeProxyServerManager extends ProxyServerManager<ServerInfo> {
     private final ProxyServer proxy;
-    // TODO: initialize on startup
-    private final Map<String, ServerInfo> servers = new HashMap<>();
 
     /**
      * Create a new bungee proxy server manager
@@ -31,10 +28,10 @@ public class BungeeProxyServerManager extends ProxyServerManager {
         String motd = server.getMotd();
         boolean restricted = false;
 
-        if (servers.containsKey(name)) {
-            ServerInfo serverInfo = servers.get(name);
-            motd = serverInfo.getMotd();
-            restricted = serverInfo.isRestricted();
+        Optional<ServerInfo> existingServerInfo = getServerInfo(name);
+        if (existingServerInfo.isPresent()) {
+            motd = existingServerInfo.get().getMotd();
+            restricted = existingServerInfo.get().isRestricted();
         }
 
         ServerInfo serverInfo = proxy.constructServerInfo(name, address, motd, restricted);
@@ -57,14 +54,21 @@ public class BungeeProxyServerManager extends ProxyServerManager {
     }
 
     @Override
-    public Optional<String> getAddress(String name) {
-        return Optional.ofNullable(proxy.getServers().get(name))
-                .map(ServerInfo::getSocketAddress)
-                .flatMap(address -> {
-                    if (address instanceof InetSocketAddress) {
-                        return Optional.of(((InetSocketAddress) address).getHostString());
-                    }
-                    return Optional.empty();
-                });
+    protected Collection<ServerInfo> getServers() {
+        return proxy.getServers().values();
+    }
+
+    @Override
+    protected String getName(ServerInfo server) {
+        return server.getName();
+    }
+
+    @Override
+    protected Optional<InetSocketAddress> getAddress(ServerInfo server) {
+        var address = server.getSocketAddress();
+        if (address instanceof InetSocketAddress) {
+            return Optional.of((InetSocketAddress) address);
+        }
+        return Optional.empty();
     }
 }

@@ -35,7 +35,7 @@ public class RestartCommand extends ServerCommand {
         }
 
         var subscribers = plugin.getStatusSubscribers();
-        subscribers.addProxyStatusSubscriber(server, null);
+        subscribers.addProxyStatusSubscriber(server);
         new WaitForStatusSubscriber(subscribers.getListener(server), source, ServerStatus.ONLINE)
                 .subscribe();
 

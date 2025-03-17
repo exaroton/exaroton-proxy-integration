@@ -8,9 +8,10 @@ import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 
 import java.net.InetSocketAddress;
+import java.util.Collection;
 import java.util.Optional;
 
-public class VelocityProxyServerManager extends ProxyServerManager {
+public class VelocityProxyServerManager extends ProxyServerManager<ServerInfo> {
     private final ProxyServer proxy;
 
     public VelocityProxyServerManager(ProxyServer proxy) {
@@ -63,10 +64,17 @@ public class VelocityProxyServerManager extends ProxyServerManager {
     }
 
     @Override
-    public Optional<String> getAddress(String name) {
-        return proxy.getServer(name)
-                .map(RegisteredServer::getServerInfo)
-                .map(ServerInfo::getAddress)
-                .map(InetSocketAddress::getHostName);
+    protected Collection<ServerInfo> getServers() {
+        return proxy.getAllServers().stream().map(RegisteredServer::getServerInfo).toList();
+    }
+
+    @Override
+    protected String getName(ServerInfo server) {
+        return server.getName();
+    }
+
+    @Override
+    protected Optional<InetSocketAddress> getAddress(ServerInfo server) {
+        return Optional.of(server.getAddress());
     }
 }

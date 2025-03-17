@@ -6,13 +6,13 @@ import com.exaroton.api.ws.subscriber.ServerStatusSubscriber;
 import com.exaroton.proxy.Constants;
 
 public class UpdateProxyServersSubscriber implements ServerStatusSubscriber {
-    private final ProxyServerManager serverManager;
+    private final ProxyServerManager<?> serverManager;
 
     /**
      * Create a new subscriber
      * @param serverManager proxy server manager
      */
-    public UpdateProxyServersSubscriber(ProxyServerManager serverManager) {
+    public UpdateProxyServersSubscriber(ProxyServerManager<?> serverManager) {
         super();
         this.serverManager = serverManager;
     }

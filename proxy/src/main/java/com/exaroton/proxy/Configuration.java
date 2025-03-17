@@ -19,7 +19,7 @@ public class Configuration {
             SerdeSkipDeserializingIf.SkipDeIf.IS_NULL,
             SerdeSkipDeserializingIf.SkipDeIf.IS_EMPTY
     })
-    boolean watchServers;
+    boolean watchServers = true;
 
     @SerdeComment(" Automatically start servers when the proxy starts")
     @SerdeSkipDeserializingIf({

@@ -13,6 +13,9 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * Abstract base class for commands that transfer players (e.g. transfer, switch)
+ */
 public abstract class AbstractTransferCommand extends ServerCommand {
     /**
      * Create a new command
@@ -39,7 +42,7 @@ public abstract class AbstractTransferCommand extends ServerCommand {
         }
 
         var subscribers = plugin.getStatusSubscribers();
-        subscribers.addProxyStatusSubscriber(server, null);
+        subscribers.addProxyStatusSubscriber(server);
 
         if (server.hasStatus(ServerStatus.ONLINE)) {
 

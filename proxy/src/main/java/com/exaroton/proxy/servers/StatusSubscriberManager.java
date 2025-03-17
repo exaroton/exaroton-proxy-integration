@@ -34,7 +34,7 @@ public class StatusSubscriberManager {
      */
     public StatusSubscriberManager(CommonProxyPlugin common,
                                    ServerCache serverCache,
-                                   ProxyServerManager serverManager) {
+                                   ProxyServerManager<?> serverManager) {
         this.common = common;
         this.serverCache = serverCache;
         this.updateProxyServersSubscriber = new UpdateProxyServersSubscriber(serverManager);
@@ -49,12 +49,10 @@ public class StatusSubscriberManager {
         return listeners.computeIfAbsent(server.getId(), id -> this.createListener(server));
     }
 
-    public void addProxyStatusSubscriber(Server server, String name) {
+    public void addProxyStatusSubscriber(Server server) {
         CompositeStatusSubscriber subscriber = getListener(server);
-        ProxyServerManager serverManager = common.getProxyServerManager();
         if (!subscriber.getSubscribers().contains(updateProxyServersSubscriber)) {
             subscriber.addSubscriber(updateProxyServersSubscriber);
-            serverManager.setServerName(server.getId(), name);
         }
     }
 
