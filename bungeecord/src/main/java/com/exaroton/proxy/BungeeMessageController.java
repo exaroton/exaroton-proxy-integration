@@ -10,9 +10,17 @@ import net.md_5.bungee.event.EventHandler;
 
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Bungee implementation of the message controller
+ */
 public class BungeeMessageController extends ProxyMessageController<Server, ProxiedPlayer, ProxyPluginImpl> implements Listener {
     private final BungeePlugin bungeePlugin;
 
+    /**
+     * Create a new message controller
+     * @param bungeePlugin bungee plugin
+     * @param common common plugin
+     */
     public BungeeMessageController(BungeePlugin bungeePlugin, ProxyPluginImpl common) {
         super(common);
         this.bungeePlugin = bungeePlugin;
@@ -39,6 +47,10 @@ public class BungeeMessageController extends ProxyMessageController<Server, Prox
         return player.getName();
     }
 
+    /**
+     * Event handler for plugin messages
+     * @param event plugin message event
+     */
     @EventHandler
     public void handleMessage(PluginMessageEvent event) {
         if (event.getSender() instanceof Server && event.getReceiver() instanceof ProxiedPlayer) {

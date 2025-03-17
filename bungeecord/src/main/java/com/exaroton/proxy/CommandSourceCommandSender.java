@@ -16,10 +16,18 @@ import java.util.List;
 public class CommandSourceCommandSender implements CommandSender {
     private final CommandSourceAccessor source;
 
+    /**
+     * Create a new CommandSourceCommandSender
+     * @param source The command source
+     */
     public CommandSourceCommandSender(CommandSourceAccessor source) {
         this.source = source;
     }
 
+    /**
+     * Get the underlying command source
+     * @return The command source
+     */
     public CommandSourceAccessor getCommandSource() {
         return source;
     }

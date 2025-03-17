@@ -39,16 +39,20 @@ public class ServerCache implements ServerStatusSubscriber {
     /**
      * Refresh the server cache
      */
-    public CompletableFuture<Void> refresh() throws IOException {
-        return apiClient.getServers().thenAccept(response -> {
-            synchronized (this.servers) {
-                this.servers.clear();
-                for (Server server : response) {
-                    this.servers.put(server.getId(), server);
+    public CompletableFuture<Void> refresh() {
+        try {
+            return apiClient.getServers().thenAccept(response -> {
+                synchronized (this.servers) {
+                    this.servers.clear();
+                    for (Server server : response) {
+                        this.servers.put(server.getId(), server);
+                    }
+                    this.lastUpdate = Instant.now();
                 }
-                this.lastUpdate = Instant.now();
-            }
-        });
+            });
+        } catch (IOException e) {
+            return CompletableFuture.failedFuture(e);
+        }
     }
 
     /**
@@ -56,7 +60,7 @@ public class ServerCache implements ServerStatusSubscriber {
      *
      * @return all servers
      */
-    public CompletableFuture<Collection<Server>> getServers() throws IOException {
+    public CompletableFuture<Collection<Server>> getServers() {
         return refreshIfNecessary().thenApply(s -> {
             synchronized (this.servers) {
                 return new ArrayList<>(servers.values());
@@ -70,7 +74,7 @@ public class ServerCache implements ServerStatusSubscriber {
      * @param query name, id or address
      * @return the server if it was found or an empty optional
      */
-    public CompletableFuture<Optional<Server>> getServer(@NotNull String query) throws IOException {
+    public CompletableFuture<Optional<Server>> getServer(@NotNull String query) {
         Objects.requireNonNull(query, "query cannot be null");
         return refreshIfNecessary().thenApply(x -> {
             Optional<Server> server;
@@ -89,7 +93,7 @@ public class ServerCache implements ServerStatusSubscriber {
         }
     }
 
-    private CompletableFuture<Void> refreshIfNecessary() throws IOException {
+    private CompletableFuture<Void> refreshIfNecessary() {
         if (isValid()) {
             return CompletableFuture.completedFuture(null);
         }

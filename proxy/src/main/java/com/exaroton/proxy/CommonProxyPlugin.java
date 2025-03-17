@@ -30,6 +30,7 @@ public abstract class CommonProxyPlugin {
 
     /**
      * Set up the plugin initially and start servers if configured. This should be called during proxy startup.
+     * @return a future that completes when setup is done
      */
     public CompletableFuture<Void> setUp() {
         initializeConfig();
@@ -49,6 +50,7 @@ public abstract class CommonProxyPlugin {
 
     /**
      * Tear down the plugin and stop servers if configured. This should be called during proxy shutdown.
+     * @return a future that completes when tear down is done
      */
     public CompletableFuture<Void> tearDown() {
         return autoStop().orTimeout(1, TimeUnit.MINUTES);
@@ -60,7 +62,7 @@ public abstract class CommonProxyPlugin {
      * @param refresh force refresh the server cache
      * @return the server if it was found or an empty optional
      */
-    public CompletableFuture<Optional<Server>> findServer(final String name, boolean refresh) throws IOException {
+    public CompletableFuture<Optional<Server>> findServer(final String name, boolean refresh) {
         Optional<String> address = getProxyServerManager().getAddress(name);
 
         var refreshFuture = CompletableFuture.<Void>completedFuture(null);
@@ -79,11 +81,7 @@ public abstract class CommonProxyPlugin {
                 return CompletableFuture.completedFuture(x);
             }
 
-            try {
-                return serverCache.getServer(name);
-            } catch (IOException e) {
-                return CompletableFuture.failedFuture(e);
-            }
+            return serverCache.getServer(name);
         });
     }
 
@@ -93,7 +91,7 @@ public abstract class CommonProxyPlugin {
      * @param name server name
      * @return the server if it was found or an empty optional
      */
-    public final CompletableFuture<Optional<Server>> findServer(String name) throws IOException {
+    public final CompletableFuture<Optional<Server>> findServer(String name) {
         return findServer(name, true);
     }
 
@@ -102,7 +100,7 @@ public abstract class CommonProxyPlugin {
      *
      * @return all available exaroton servers
      */
-    public final CompletableFuture<Collection<Server>> getServers() throws IOException {
+    public final CompletableFuture<Collection<Server>> getServers() {
         return serverCache.getServers();
     }
 
@@ -231,26 +229,22 @@ public abstract class CommonProxyPlugin {
      * @return A future that completes when the watching has started
      */
     private CompletableFuture<Void> watchServer(ProxyServerManager<?> serverManager, String address, String name) {
-        try {
-            return findServer(address, false).thenAccept(optionalServer -> {
-                if (optionalServer.isEmpty()) {
-                    return;
-                }
-                Server server = optionalServer.get();
+        return findServer(address, false).thenAccept(optionalServer -> {
+            if (optionalServer.isEmpty()) {
+                return;
+            }
+            Server server = optionalServer.get();
 
-                Constants.LOG.info("Watching server {} for status changes.", name);
-                serverManager.removeServer(server);
-                if (server.hasStatus(ServerStatus.ONLINE)) {
-                    serverManager.addServer(server);
-                } else {
-                    Constants.LOG.info("Removing server {} from proxy because it is not online.", name);
-                }
+            Constants.LOG.info("Watching server {} for status changes.", name);
+            serverManager.removeServer(server);
+            if (server.hasStatus(ServerStatus.ONLINE)) {
+                serverManager.addServer(server);
+            } else {
+                Constants.LOG.info("Removing server {} from proxy because it is not online.", name);
+            }
 
-                statusSubscribers.addProxyStatusSubscriber(server);
-            });
-        } catch (IOException e) {
-            return CompletableFuture.failedFuture(e);
-        }
+            statusSubscribers.addProxyStatusSubscriber(server);
+        });
     }
 
     /**
@@ -279,35 +273,31 @@ public abstract class CommonProxyPlugin {
      * servers to go online.
      */
     private CompletableFuture<Void> autoStart(String query) {
-        try {
-            return findServer(query, false).thenCompose(server -> {
-                if (server.isEmpty()) {
-                    Constants.LOG.error("Failed to start server {}: Server not found", query);
-                    return CompletableFuture.completedFuture(null);
-                }
+        return findServer(query, false).thenCompose(server -> {
+            if (server.isEmpty()) {
+                Constants.LOG.error("Failed to start server {}: Server not found", query);
+                return CompletableFuture.completedFuture(null);
+            }
 
-                if (server.get().hasStatus(ServerStatus.ONLINE)) {
-                    Constants.LOG.info("Server {} is already online.", query);
-                    getProxyServerManager().addServer(server.get());
-                    return CompletableFuture.completedFuture(null);
-                }
+            if (server.get().hasStatus(ServerStatus.ONLINE)) {
+                Constants.LOG.info("Server {} is already online.", query);
+                getProxyServerManager().addServer(server.get());
+                return CompletableFuture.completedFuture(null);
+            }
 
-                getStatusSubscribers().addProxyStatusSubscriber(server.get());
+            getStatusSubscribers().addProxyStatusSubscriber(server.get());
 
-                if (server.get().hasStatus(StatusGroups.STARTING)) {
-                    Constants.LOG.info("Server {} is already starting.", query);
-                    return CompletableFuture.completedFuture(null);
-                }
+            if (server.get().hasStatus(StatusGroups.STARTING)) {
+                Constants.LOG.info("Server {} is already starting.", query);
+                return CompletableFuture.completedFuture(null);
+            }
 
-                try {
-                    return server.get().start().thenAccept(s -> Constants.LOG.info("Requested start for server {}.", query));
-                } catch (IOException e) {
-                    return CompletableFuture.failedFuture(e);
-                }
-            });
-        } catch (IOException e) {
-            return CompletableFuture.failedFuture(e);
-        }
+            try {
+                return server.get().start().thenAccept(s -> Constants.LOG.info("Requested start for server {}.", query));
+            } catch (IOException e) {
+                return CompletableFuture.failedFuture(e);
+            }
+        });
     }
 
     /**
@@ -336,32 +326,28 @@ public abstract class CommonProxyPlugin {
      * server to go offline.
      */
     private CompletableFuture<Void> autoStop(String query) {
-        try {
-            return findServer(query, false).thenCompose(server -> {
-                if (server.isEmpty()) {
-                    Constants.LOG.error("Failed to stop server {}: Server not found", query);
-                    return CompletableFuture.completedFuture(null);
-                }
+        return findServer(query, false).thenCompose(server -> {
+            if (server.isEmpty()) {
+                Constants.LOG.error("Failed to stop server {}: Server not found", query);
+                return CompletableFuture.completedFuture(null);
+            }
 
-                if (server.get().hasStatus(ServerStatus.GROUP_OFFLINE)) {
-                    Constants.LOG.info("Server {} is already offline.", query);
-                    return CompletableFuture.completedFuture(null);
-                }
+            if (server.get().hasStatus(ServerStatus.GROUP_OFFLINE)) {
+                Constants.LOG.info("Server {} is already offline.", query);
+                return CompletableFuture.completedFuture(null);
+            }
 
-                if (server.get().hasStatus(ServerStatus.GROUP_STOPPING)) {
-                    Constants.LOG.info("Server {} is already stopping.", query);
-                    return CompletableFuture.completedFuture(null);
-                }
+            if (server.get().hasStatus(ServerStatus.GROUP_STOPPING)) {
+                Constants.LOG.info("Server {} is already stopping.", query);
+                return CompletableFuture.completedFuture(null);
+            }
 
-                try {
-                    return server.get().stop().thenAccept(s -> Constants.LOG.info("Requested stop for server {}.", query));
-                } catch (IOException e) {
-                    return CompletableFuture.failedFuture(e);
-                }
-            });
-        } catch (IOException e) {
-            return CompletableFuture.failedFuture(e);
-        }
+            try {
+                return server.get().stop().thenAccept(s -> Constants.LOG.info("Requested stop for server {}.", query));
+            } catch (IOException e) {
+                return CompletableFuture.failedFuture(e);
+            }
+        });
     }
 
     protected Collection<Command<?>> getCommands()  {

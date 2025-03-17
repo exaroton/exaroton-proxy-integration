@@ -106,24 +106,20 @@ public abstract class ProxyServerManager<ServerInfo> {
     public final CompletableFuture<Void> loadServers(CommonProxyPlugin plugin) {
         var futures = new ArrayList<CompletableFuture<Void>>();
         for (ServerInfo info : getServers()) {
-            try {
-                Optional<String> address = getAddress(info).map(InetSocketAddress::getHostString);
-                if (address.isEmpty()) {
-                    continue;
-                }
-
-                futures.add(plugin.findServer(address.get()).thenAccept(server -> {
-                    if (server.isEmpty()) {
-                        return;
-                    }
-                    this.serverInfo.put(server.get().getId(), info);
-                }).exceptionally(t -> {
-                    Constants.LOG.error("Failed to get id for server {}: {}", getName(info), t.getMessage(), t);
-                    return null;
-                }));
-            } catch (IOException e) {
-                Constants.LOG.info("Failed to get id for server {}: {}", getName(info), e.getMessage(), e);
+            Optional<String> address = getAddress(info).map(InetSocketAddress::getHostString);
+            if (address.isEmpty()) {
+                continue;
             }
+
+            futures.add(plugin.findServer(address.get()).thenAccept(server -> {
+                if (server.isEmpty()) {
+                    return;
+                }
+                this.serverInfo.put(server.get().getId(), info);
+            }).exceptionally(t -> {
+                Constants.LOG.error("Failed to get id for server {}: {}", getName(info), t.getMessage(), t);
+                return null;
+            }));
         }
 
         return CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new));

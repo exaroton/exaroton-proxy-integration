@@ -61,21 +61,17 @@ public abstract class ProxyMessageController<
             }
         } else if (message instanceof TransferPlayerS2PMessage) {
             TransferPlayerS2PMessage transferPlayerS2PMessage = (TransferPlayerS2PMessage) message;
-            try {
-                common.findServer(transferPlayerS2PMessage.getServerId()).thenAccept(server -> {
-                    if (server.isEmpty()) {
-                        Constants.LOG.error("Failed to transfer player to server: Server not found: {}", transferPlayerS2PMessage.getServerId());
-                        return;
-                    }
+            common.findServer(transferPlayerS2PMessage.getServerId()).thenAccept(server -> {
+                if (server.isEmpty()) {
+                    Constants.LOG.error("Failed to transfer player to server: Server not found: {}", transferPlayerS2PMessage.getServerId());
+                    return;
+                }
 
-                    common.getProxyServerManager().transferPlayer(server.get(), getPlayerName(player));
-                }).exceptionally(t -> {
-                    Constants.LOG.error("Failed to transfer player to server: {}", transferPlayerS2PMessage.getServerId(), t);
-                    return null;
-                });
-            } catch (IOException e) {
-                Constants.LOG.error("Failed to transfer player to server: {}", transferPlayerS2PMessage.getServerId(), e);
-            }
+                common.getProxyServerManager().transferPlayer(server.get(), getPlayerName(player));
+            }).exceptionally(t -> {
+                Constants.LOG.error("Failed to transfer player to server: {}", transferPlayerS2PMessage.getServerId(), t);
+                return null;
+            });
         } else {
             Constants.LOG.error("Unknown message type: {}", message.getType());
         }
@@ -105,7 +101,17 @@ public abstract class ProxyMessageController<
         send(serverConnection, new TransferPlayersP2SMessage(id, serverId, playerNames.toArray(String[]::new)));
     }
 
+    /**
+     * Execute a command on the proxy
+     * @param source the source of the command
+     * @param args the command arguments
+     */
     protected abstract void executeCommand(CommandSourceAccessor source, String[] args);
 
+    /**
+     * Get the name of a player
+     * @param player the player connection
+     * @return the player name
+     */
     protected abstract String getPlayerName(PlayerConnection player);
 }

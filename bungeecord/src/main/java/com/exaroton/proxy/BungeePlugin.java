@@ -9,6 +9,9 @@ import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Plugin;
 
+/**
+ * BungeeCord plugin class
+ */
 public class BungeePlugin extends Plugin {
     static {
         // Bukkit uses a different class loader for plugins than the default thread context class loader.
@@ -19,6 +22,9 @@ public class BungeePlugin extends Plugin {
     protected BungeeAudiences adventure;
     protected BungeeBrigadierCommand command;
 
+    /**
+     * Enable the plugin
+     */
     @Override
     public void onEnable() {
         commonPlugin.setUp().join();
@@ -27,6 +33,9 @@ public class BungeePlugin extends Plugin {
         getProxy().getPluginManager().registerListener(this, commonPlugin.getMessageController());
     }
 
+    /**
+     * Disable the plugin
+     */
     @Override
     public void onDisable() {
         if (adventure != null) {
@@ -44,11 +53,20 @@ public class BungeePlugin extends Plugin {
         return adventure;
     }
 
+    /**
+     * Get an adventure audience for a command sender
+     * @param sender command sender
+     * @return adventure audience
+     */
     public Audience audience(CommandSender sender) {
         //noinspection resource
         return adventure().sender(sender);
     }
 
+    /**
+     * Get the brigadier command
+     * @return brigadier command
+     */
     public BungeeBrigadierCommand getCommand() {
         return command;
     }

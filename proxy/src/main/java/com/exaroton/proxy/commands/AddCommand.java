@@ -9,6 +9,9 @@ import com.mojang.brigadier.context.CommandContext;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * Command to add a server to the proxy
+ */
 public class AddCommand extends ServerCommand {
 
     /**

@@ -58,25 +58,21 @@ public abstract class ServerCommand extends Command<CommonProxyPlugin> {
         CommandSourceAccessor source = buildContext.mapSource(context.getSource());
         String serverInput = context.getArgument(ARGUMENT_SERVER, String.class);
 
-        try {
-            this.plugin.findServer(serverInput).thenAccept(server -> {
-                if (server.isEmpty()) {
-                    source.sendFailure(Component.text("Failed to find a server with the name " + serverInput));
-                    return;
-                }
+        this.plugin.findServer(serverInput).thenAccept(server -> {
+            if (server.isEmpty()) {
+                source.sendFailure(Component.text("Failed to find a server with the name " + serverInput));
+                return;
+            }
 
-                try {
-                    execute(context, buildContext, server.get());
-                } catch (Exception e) {
-                    executionException(source, e);
-                }
-            }).exceptionally(t -> {
-                executionException(source, t);
-                return null;
-            });
-        } catch (IOException e) {
-            executionException(source, e);
-        }
+            try {
+                execute(context, buildContext, server.get());
+            } catch (Exception e) {
+                executionException(source, e);
+            }
+        }).exceptionally(t -> {
+            executionException(source, t);
+            return null;
+        });
         return 1;
     }
 
