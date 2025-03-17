@@ -7,11 +7,9 @@ import com.exaroton.proxy.Constants;
 import com.exaroton.proxy.commands.CommandSourceAccessor;
 import net.kyori.adventure.text.Component;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 /**
  * Interface for managing servers in a proxy
@@ -22,6 +20,10 @@ public abstract class ProxyServerManager<ServerInfo> {
      * Map of server ids to their proxy names
      */
     private final Map<String, ServerInfo> serverInfo = new HashMap<>();
+    /**
+     * Map of server names to their ids
+     */
+    private final Map<String, String> idsByName = new HashMap<>();
 
     public final void addServer(Server server, CommandSourceAccessor source) {
         if (hasServer(server)) {
@@ -116,6 +118,7 @@ public abstract class ProxyServerManager<ServerInfo> {
                     return;
                 }
                 this.serverInfo.put(server.get().getId(), info);
+                this.idsByName.put(getName(info), server.get().getId());
             }).exceptionally(t -> {
                 Constants.LOG.error("Failed to get id for server {}: {}", getName(info), t.getMessage(), t);
                 return null;
@@ -131,20 +134,25 @@ public abstract class ProxyServerManager<ServerInfo> {
      * @return the address of the server or an empty optional if the server was not found
      */
     public final Optional<String> getAddress(String name) {
-        if (!this.serverInfo.containsKey(name)) {
-            return Optional.empty();
-        }
-
-        return getAddress(this.serverInfo.get(name))
+        return this.getServerInfo(name)
+                .flatMap(this::getAddress)
                 .map(InetSocketAddress::getHostString);
     }
 
     /**
-     * Get a list of all server names
-     * @return list of server names
+     * Get a list of all exaroton server addresses from the proxy
+     * @return list of server addresses
      */
-    public final Collection<String> getNames() {
-        return this.serverInfo.values().stream().map(this::getName).collect(Collectors.toList());
+    public final Collection<String> getAddresses() {
+        var result = new ArrayList<String>();
+
+        for (ServerInfo info : this.serverInfo.values()) {
+            getAddress(info)
+                    .map(InetSocketAddress::getHostString)
+                    .ifPresent(result::add);
+        }
+
+        return result;
     }
 
     /**
@@ -203,7 +211,12 @@ public abstract class ProxyServerManager<ServerInfo> {
      * @return server info or an empty optional if the server was not found
      */
     protected Optional<ServerInfo> getServerInfo(String name) {
-        return Optional.ofNullable(this.serverInfo.get(name));
+        String id = this.idsByName.get(name);
+        if (id == null) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(this.serverInfo.get(id));
     }
 
     private String getName(Server server) {

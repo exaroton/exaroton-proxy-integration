@@ -227,15 +227,10 @@ public abstract class CommonProxyPlugin {
         var serverManager = getProxyServerManager();
         var futures = new ArrayList<CompletableFuture<Void>>();
 
-        for (String name : serverManager.getNames()) {
-            var address = serverManager.getAddress(name).orElse(null);
-            if (address == null) {
-                continue;
-            }
-
-            futures.add(watchServer(serverManager, address, name)
+        for (String address : serverManager.getAddresses()) {
+            futures.add(watchServer(serverManager, address)
                     .exceptionally(t -> {
-                Constants.LOG.error("Failed to watch server {}: {}", name, t.getMessage(), t);
+                Constants.LOG.error("Failed to watch server {}: {}", address, t.getMessage(), t);
                 return null;
             }));
         }
@@ -247,22 +242,21 @@ public abstract class CommonProxyPlugin {
      * Watch a single server for status changes
      * @param serverManager the server manager to add/remove the server from
      * @param address the address of the server
-     * @param name the name of the server
      * @return A future that completes when the watching has started
      */
-    private CompletableFuture<Void> watchServer(ProxyServerManager<?> serverManager, String address, String name) {
+    private CompletableFuture<Void> watchServer(ProxyServerManager<?> serverManager, String address) {
         return findServer(address, false).thenAccept(optionalServer -> {
             if (optionalServer.isEmpty()) {
                 return;
             }
             Server server = optionalServer.get();
 
-            Constants.LOG.info("Watching server {} for status changes.", name);
+            Constants.LOG.info("Watching server {} for status changes.", address);
             serverManager.removeServer(server);
             if (server.hasStatus(ServerStatus.ONLINE)) {
                 serverManager.addServer(server);
             } else {
-                Constants.LOG.info("Removing server {} from proxy because it is not online.", name);
+                Constants.LOG.info("Removing server {} from proxy because it is not online.", address);
             }
 
             statusSubscribers.addProxyStatusSubscriber(server);
