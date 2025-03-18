@@ -11,7 +11,7 @@ folia-supported: true
 commands:
   exaroton:
     description: "Manage exaroton servers on your proxy"
-    usage: "/exaroton <start|stop|restart|add|remove|switch|transfer>"
+    usage: "/exaroton <start|stop|restart|add|remove|switch>"
     permission: "exaroton"
 
 permissions:
@@ -36,9 +36,6 @@ permissions:
   exaroton.switch:
     description: "Allows switching to another server"
     default: op
-  exaroton.transfer:
-    description: "Allows transferring a player to another server"
-    default: op
   exaroton.*:
     description: "Gives access to all exaroton commands"
     children:
@@ -49,4 +46,3 @@ permissions:
       exaroton.add: true
       exaroton.remove: true
       exaroton.switch: true
-      exaroton.transfer: true

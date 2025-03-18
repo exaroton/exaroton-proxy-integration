@@ -9,6 +9,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * A BungeeCord implementation of {@link CommandSourceAccessor}.
@@ -45,6 +46,11 @@ public class BungeeCommandSenderAccessor extends CommandSourceAccessor {
         }
 
         return Optional.empty();
+    }
+
+    @Override
+    public Set<String> filterPlayers(Set<String> playerNames) {
+        return playerNames.stream().filter(commonPlugin.getPlayers()::contains).collect(Collectors.toSet());
     }
 
     @Override

@@ -49,8 +49,15 @@ public class BungeeProxyServerManager extends ProxyServerManager<ServerInfo> {
     }
 
     @Override
-    protected void transferPlayer(String server, String player) {
-        proxy.getPlayer(player).connect(proxy.getServerInfo(server));
+    protected void transferPlayer(String server, String username) {
+        var p = proxy.getPlayer(username);
+
+        if (p == null) {
+            Constants.LOG.error("Failed to transfer player {}: player not found", username);
+            return;
+        }
+
+        p.connect(proxy.getServerInfo(server));
     }
 
     @Override

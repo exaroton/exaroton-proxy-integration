@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 public class WaitForStatusSubscriber implements ServerStatusSubscriber {
+    private final Phasing phasing = Phasing.LATE;
     private final CompositeStatusSubscriber parent;
     private final CommandSourceAccessor source;
     private final Set<ServerStatus> targetStatus;
@@ -36,7 +37,7 @@ public class WaitForStatusSubscriber implements ServerStatusSubscriber {
         }
 
         future = new CompletableFuture<>();
-        parent.addSubscriber(this);
+        parent.addSubscriber(phasing, this);
         return future;
     }
 
@@ -44,7 +45,7 @@ public class WaitForStatusSubscriber implements ServerStatusSubscriber {
     public void handleStatusUpdate(Server oldServer, Server newServer) {
         if (newServer.hasStatus(targetStatus)) {
             future.complete(newServer);
-            parent.removeSubscriber(this);
+            parent.removeSubscriber(phasing, this);
         }
 
         if (oldServer.getStatus() != newServer.getStatus()) {

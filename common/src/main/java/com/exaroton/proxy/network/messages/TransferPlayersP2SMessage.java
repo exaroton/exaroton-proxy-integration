@@ -6,11 +6,13 @@ import com.exaroton.proxy.network.id.CommandExecutionId;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 
+import java.util.Set;
+
 public class TransferPlayersP2SMessage extends Message<TransferPlayersP2SMessage> {
     private final String serverId;
-    private final String[] players;
+    private final Set<String> players;
 
-    public TransferPlayersP2SMessage(CommandExecutionId id, String serverId, String[] players) {
+    public TransferPlayersP2SMessage(CommandExecutionId id, String serverId, Set<String> players) {
         super(id);
         this.serverId = serverId;
         this.players = players;
@@ -19,10 +21,7 @@ public class TransferPlayersP2SMessage extends Message<TransferPlayersP2SMessage
     public TransferPlayersP2SMessage(ByteArrayDataInput input) {
         super(input);
         this.serverId = input.readUTF();
-        this.players = new String[input.readInt()];
-        for (int i = 0; i < this.players.length; i++) {
-            this.players[i] = input.readUTF();
-        }
+        this.players = deserializeStringSet(input);
     }
 
     @Override
@@ -33,17 +32,14 @@ public class TransferPlayersP2SMessage extends Message<TransferPlayersP2SMessage
     @Override
     protected void serialize(ByteArrayDataOutput output) {
         output.writeUTF(serverId);
-        output.writeInt(players.length);
-        for (String player : players) {
-            output.writeUTF(player);
-        }
+        serializeStringSet(output, players);
     }
 
     public String getServerId() {
         return serverId;
     }
 
-    public String[] getPlayers() {
+    public Set<String> getPlayers() {
         return players;
     }
 }

@@ -3,6 +3,8 @@ package com.exaroton.proxy.commands;
 import com.exaroton.proxy.Constants;
 import com.exaroton.proxy.BukkitPlugin;
 import com.exaroton.proxy.BukkitMessageController;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.*;
 import org.bukkit.command.Command;
@@ -38,7 +40,12 @@ public class BukkitProxyCommand implements CommandExecutor {
 
         for (var arg : args) {
             if (arg.startsWith("@")) {
-                processedArgs.addAll(matchSelector(sender, arg));
+                var entities = matchSelector(sender, arg);
+                if (entities.isEmpty()) {
+                    plugin.audience(sender).sendMessage(Component.text("No players found", NamedTextColor.RED));
+                    return true;
+                }
+                processedArgs.addAll(entities);
             } else {
                 processedArgs.add(arg);
             }

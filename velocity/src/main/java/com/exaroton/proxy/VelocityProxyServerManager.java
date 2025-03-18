@@ -47,16 +47,16 @@ public class VelocityProxyServerManager extends ProxyServerManager<ServerInfo> {
     }
 
     @Override
-    protected void transferPlayer(String serverName, String playerName) {
+    protected void transferPlayer(String serverName, String username) {
         Optional<RegisteredServer> server = proxy.getServer(serverName);
         if (server.isEmpty()) {
-            Constants.LOG.error("Failed to transfer player {} to server {}: server not found", playerName, serverName);
+            Constants.LOG.error("Failed to transfer player {} to server {}: server not found", username, serverName);
             return;
         }
 
-        Optional<Player> player = proxy.getPlayer(playerName);
+        Optional<Player> player = proxy.getPlayer(username);
         if (player.isEmpty()) {
-            Constants.LOG.error("Failed to transfer player {}: player not found", playerName);
+            Constants.LOG.error("Failed to transfer player {}: player not found", username);
             return;
         }
 

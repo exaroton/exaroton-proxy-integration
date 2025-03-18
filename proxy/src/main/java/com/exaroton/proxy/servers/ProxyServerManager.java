@@ -181,9 +181,9 @@ public abstract class ProxyServerManager<ServerInfo> {
     /**
      * Transfer a player to another server
      * @param server server to transfer the player to
-     * @param player player to transfer
+     * @param username player to transfer
      */
-    protected abstract void transferPlayer(String server, String player);
+    protected abstract void transferPlayer(String server, String username);
 
     /**
      * Get a list of all servers registered in the proxy

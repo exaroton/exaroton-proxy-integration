@@ -2,9 +2,13 @@ package com.exaroton.proxy.servers;
 
 import com.exaroton.api.server.Server;
 import com.exaroton.api.ws.subscriber.ServerStatusSubscriber;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
+import com.google.common.collect.Multimaps;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * A status subscriber that delegates events to other subscribers.
@@ -15,7 +19,8 @@ public class CompositeStatusSubscriber implements ServerStatusSubscriber {
     /**
      * All subscribers
      */
-    protected final Collection<ServerStatusSubscriber> subscribers = new HashSet<>();
+    protected final Multimap<Phasing, ServerStatusSubscriber> subscribers = Multimaps.synchronizedSetMultimap(
+            MultimapBuilder.enumKeys(Phasing.class).hashSetValues().build());
 
     /**
      * The server
@@ -24,22 +29,31 @@ public class CompositeStatusSubscriber implements ServerStatusSubscriber {
 
     /**
      * Create a new composite subscriber
+     *
      * @param serverCache server cache
-     * @param server server
+     * @param server      server
      */
     public CompositeStatusSubscriber(ServerCache serverCache, Server server) {
         this.server = server;
-        subscribers.add(serverCache);
+        subscribers.put(Phasing.NORMAL, serverCache);
     }
 
     /**
      * Add a new subscriber
+     *
      * @param subscriber subscriber
      */
     public void addSubscriber(ServerStatusSubscriber subscriber) {
-        synchronized (subscribers) {
-            subscribers.add(subscriber);
-        }
+        subscribers.put(Phasing.NORMAL, subscriber);
+    }
+
+    /**
+     * Add a new subscriber
+     *
+     * @param subscriber subscriber
+     */
+    public void addSubscriber(Phasing phasing, ServerStatusSubscriber subscriber) {
+        subscribers.put(phasing, subscriber);
     }
 
     /**
@@ -47,31 +61,33 @@ public class CompositeStatusSubscriber implements ServerStatusSubscriber {
      *
      * @param subscriber subscriber
      */
-    public void removeSubscriber(ServerStatusSubscriber subscriber) {
-        synchronized (subscribers) {
-            subscribers.remove(subscriber);
-
-            // unsubscribe if only the server cache is left
-            if (subscribers.stream().allMatch(s -> s instanceof ServerCache)) {
-                server.unsubscribe();
-            }
+    public void removeSubscriber(Phasing phasing, ServerStatusSubscriber subscriber) {
+        subscribers.remove(phasing, subscriber);
+        // unsubscribe if only the server cache is left
+        if (subscribers.values().stream().allMatch(s -> s instanceof ServerCache)) {
+            server.unsubscribe();
         }
     }
 
     /**
      * Get all subscribers
+     *
      * @return all subscribers
      */
     public Collection<ServerStatusSubscriber> getSubscribers() {
-        synchronized (subscribers) {
-            return new HashSet<>(subscribers);
-        }
+        return new HashSet<>(subscribers.values());
+    }
+
+    public Collection<ServerStatusSubscriber> getSubscribers(Phasing phasing) {
+        return new HashSet<>(subscribers.get(phasing));
     }
 
     @Override
     public void handleStatusUpdate(Server oldServer, Server newServer) {
-        for (ServerStatusSubscriber subscriber : getSubscribers()) {
-            subscriber.handleStatusUpdate(oldServer, newServer);
+        for (Phasing phasing : List.of(Phasing.NORMAL, Phasing.LATE)) {
+            for (ServerStatusSubscriber subscriber : getSubscribers(phasing)) {
+                subscriber.handleStatusUpdate(oldServer, newServer);
+            }
         }
     }
 

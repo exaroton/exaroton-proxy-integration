@@ -8,6 +8,7 @@ import net.kyori.adventure.audience.Audience;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class VelocityCommandSourceAccessor extends CommandSourceAccessor {
     private final VelocityPlugin velocityPlugin;
@@ -38,6 +39,11 @@ public class VelocityCommandSourceAccessor extends CommandSourceAccessor {
             return Optional.of(((Player) source).getUsername());
         }
         return Optional.empty();
+    }
+
+    @Override
+    public Set<String> filterPlayers(Set<String> playerNames) {
+        return playerNames.stream().filter(velocityPlugin.getPlayers()::contains).collect(Collectors.toSet());
     }
 
     @Override

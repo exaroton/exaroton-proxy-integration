@@ -16,6 +16,8 @@ public final class MessageType<T extends Message<T>> {
     public static final MessageType<TransferPlayersP2SMessage> TRANSFER_PLAYERS_P2S = new MessageType<>("transfer_players_p2s", TransferPlayersP2SMessage::new);
     public static final MessageType<TransferPlayerS2PMessage> TRANSFER_PLAYER_S2P = new MessageType<>("transfer_player_s2p", TransferPlayerS2PMessage::new);
     public static final MessageType<FreeExecutionIdMessage> FREE_EXECUTION_ID = new MessageType<>("free_execution_id", FreeExecutionIdMessage::new);
+    public static final MessageType<FilterPlayersRequest> FILTER_PLAYERS_REQUEST = new MessageType<>("filter_players_request", FilterPlayersRequest::new);
+    public static final MessageType<FilterPlayersResponse> FILTER_PLAYERS_RESPONSE = new MessageType<>("filter_players_response", FilterPlayersResponse::new);
 
     private final String slug;
     private final Function<ByteArrayDataInput, T> deserializer;
@@ -36,6 +38,9 @@ public final class MessageType<T extends Message<T>> {
     private MessageType(String slug, Function<ByteArrayDataInput, T> deserializer) {
         this.slug = slug;
         this.deserializer = deserializer;
+        if (BY_SLUG.containsKey(slug)) {
+            throw new IllegalArgumentException("Duplicate message type slug: " + slug);
+        }
         BY_SLUG.put(slug, this);
     }
 

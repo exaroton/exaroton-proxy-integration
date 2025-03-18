@@ -13,14 +13,13 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.kyori.adventure.text.Component;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * A command for server-related actions
  */
-public abstract class ServerCommand extends Command<CommonProxyPlugin> {
+public abstract class ServerCommand extends Command<CommonProxyPlugin> implements ServerCommandCallback {
     protected static final String ARGUMENT_SERVER = "server";
 
     protected final String name;
@@ -48,12 +47,13 @@ public abstract class ServerCommand extends Command<CommonProxyPlugin> {
     }
 
     protected <T> ArgumentBuilder<T, ?> buildWithServer(BuildContext<T> buildContext, RequiredArgumentBuilder<T, ?> builder) {
-        return builder.executes(context -> this.executeWithServer(context, buildContext));
+        return builder.executes(context -> this.executeWithServer(context, buildContext, this));
     }
 
     protected <T> int executeWithServer(
             CommandContext<T> context,
-            BuildContext<T> buildContext
+            BuildContext<T> buildContext,
+            ServerCommandCallback callback
     ) {
         CommandSourceAccessor source = buildContext.mapSource(context.getSource());
         String serverInput = context.getArgument(ARGUMENT_SERVER, String.class);
@@ -65,7 +65,7 @@ public abstract class ServerCommand extends Command<CommonProxyPlugin> {
             }
 
             try {
-                execute(context, buildContext, server.get());
+                callback.execute(source, server.get());
             } catch (Exception e) {
                 executionException(source, e);
             }
@@ -80,19 +80,6 @@ public abstract class ServerCommand extends Command<CommonProxyPlugin> {
         Constants.LOG.error("An error occurred while executing the command", t);
         source.sendFailure(Component.text("An error occurred while executing the command"));
     }
-
-    /**
-     * Execute the command
-     *
-     * @param context      The command context
-     * @param buildContext The build context
-     * @param server       The server
-     * @param <T>          The command source type
-     * @throws IOException If sending a request fails
-     */
-    protected abstract <T> void execute(CommandContext<T> context,
-                                        BuildContext<T> buildContext,
-                                        Server server) throws IOException;
 
     /**
      * Get all server statuses that should be used for suggestions

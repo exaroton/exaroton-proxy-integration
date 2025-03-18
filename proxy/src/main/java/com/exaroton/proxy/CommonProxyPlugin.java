@@ -373,8 +373,7 @@ public abstract class CommonProxyPlugin {
                 new RestartCommand(this),
                 new AddCommand(this),
                 new RemoveCommand(this),
-                new SwitchCommand(this),
-                new TransferCommand(this)
+                new SwitchCommand(this)
         );
     }
 

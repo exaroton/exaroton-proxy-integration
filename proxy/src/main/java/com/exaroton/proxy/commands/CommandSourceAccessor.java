@@ -34,6 +34,13 @@ public abstract class CommandSourceAccessor {
     public abstract Optional<String> getPlayerName();
 
     /**
+     * Filter a list of player names to only include valid names.
+     * @param playerNames The list of player names to filter.
+     * @return A set of valid player names.
+     */
+    public abstract Set<String> filterPlayers(Set<String> playerNames);
+
+    /**
      * Transfer a list of players to a server
      * @param server The server to transfer the players to.
      * @param playerNames Set of player names to transfer.

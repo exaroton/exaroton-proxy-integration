@@ -6,7 +6,6 @@ import com.exaroton.proxy.CommonProxyPlugin;
 import com.exaroton.proxy.Components;
 import com.exaroton.proxy.StatusGroups;
 import com.exaroton.proxy.servers.WaitForStatusSubscriber;
-import com.mojang.brigadier.context.CommandContext;
 import net.kyori.adventure.text.Component;
 
 import java.io.IOException;
@@ -24,11 +23,7 @@ public class RestartCommand extends ServerCommand {
     }
 
     @Override
-    protected <T> void execute(CommandContext<T> context,
-                              BuildContext<T> buildContext,
-                              Server server) throws IOException {
-        CommandSourceAccessor source = buildContext.mapSource(context.getSource());
-
+    public void execute(CommandSourceAccessor source, Server server) throws IOException {
         if (!server.hasStatus(StatusGroups.RESTARTABLE)) {
             source.sendFailure(Components.incorrectStatus(server, StatusGroups.RESTARTABLE, "restarted"));
             return;

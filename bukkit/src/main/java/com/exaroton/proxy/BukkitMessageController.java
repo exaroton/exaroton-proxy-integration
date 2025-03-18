@@ -4,12 +4,14 @@ import com.exaroton.proxy.network.Message;
 import com.exaroton.proxy.network.MessageController;
 import com.exaroton.proxy.network.id.NetworkId;
 import com.exaroton.proxy.network.messages.*;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
+import java.util.stream.Collectors;
 
 public class BukkitMessageController extends MessageController<Player, Void> implements PluginMessageListener {
     private final BukkitPlugin plugin;
@@ -60,6 +62,14 @@ public class BukkitMessageController extends MessageController<Player, Void> imp
             }
             case TextComponentMessage textComponentMessage ->
                     plugin.audience(source).sendMessage(textComponentMessage.getComponent());
+            case FilterPlayersRequest request -> {
+                var players = Bukkit.getOnlinePlayers().stream()
+                        .map(Player::getName)
+                        .filter(request.getPlayerNames()::contains)
+                        .collect(Collectors.toSet());
+                var response = new FilterPlayersResponse(request.getCommandExecutionId(), request.getRequestId(), players);
+                send(origin, response);
+            }
             case TransferPlayersP2SMessage transferPlayersP2SMessage -> {
                 for (String player : transferPlayersP2SMessage.getPlayers()) {
                     var target = plugin.getServer().getPlayerExact(player);
@@ -77,7 +87,7 @@ public class BukkitMessageController extends MessageController<Player, Void> imp
                 }
             }
             case FreeExecutionIdMessage ignored -> senders.remove(message.getCommandExecutionId());
-            default -> Constants.LOG.error("Unknown message type: {}", message.getType());
+            default -> Constants.LOG.error("Unknown message type: {}", message.getType().getSlug());
         }
     }
 

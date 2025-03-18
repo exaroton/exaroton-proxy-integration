@@ -63,6 +63,11 @@ public class PluginMessageCommandSourceAccessor<Server> extends CommandSourceAcc
     }
 
     @Override
+    public Set<String> filterPlayers(Set<String> playerNames) {
+        return controller.filterPlayers(server, id, playerNames).join();
+    }
+
+    @Override
     public void transferPlayers(com.exaroton.api.server.Server server, Set<String> playerNames) {
         controller.transferPlayers(this.server, id, server.getId(), playerNames);
     }

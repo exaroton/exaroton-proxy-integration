@@ -24,15 +24,14 @@ automatically when you need them.
 
 The Plugin provides the `/exaroton` command with the following subcommands:
 
-| Command  | Arguments              | Description                                                                | Permission Node   |
-|----------|------------------------|----------------------------------------------------------------------------|-------------------|
-| start    | \<server>              | Start a server and automatically add it to the network when it goes online | exaroton.start    |
-| stop     | \<server>              | Remove a server from the proxy and stop it                                 | exaroton.stop     |
-| restart  | \<server>              | Restart a server                                                           | exaroton.restart  |
-| add      | \<server>              | Add a server that's already online to your proxy                           | exaroton.add      |
-| remove   | \<server>              | Remove a server from your proxy                                            | exaroton.remove   |
-| switch   | \<server>              | Start a server (if needed) and transfer the executing player to it         | exaroton.switch   |
-| transfer | \<server> [\<players>] | Start a server (if needed) and transfer the specified player(s) to it      | exaroton.transfer |
+| Command  | Arguments              | Description                                                                                                                                              | Permission Node   |
+|----------|------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------|
+| start    | \<server>              | Start a server and automatically add it to the network when it goes online                                                                               | exaroton.start    |
+| stop     | \<server>              | Remove a server from the proxy and stop it                                                                                                               | exaroton.stop     |
+| restart  | \<server>              | Restart a server                                                                                                                                         | exaroton.restart  |
+| add      | \<server>              | Add a server that's already online to your proxy                                                                                                         | exaroton.add      |
+| remove   | \<server>              | Remove a server from your proxy                                                                                                                          | exaroton.remove   |
+| switch   | \<server> [\<players>] | Start a server (if needed) and transfer the selected players to it. If no players are specified the player who executed the command will be transferred. | exaroton.switch   |
 
 ### Permissions
 

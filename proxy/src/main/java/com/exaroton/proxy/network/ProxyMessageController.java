@@ -5,12 +5,13 @@ import com.exaroton.proxy.Constants;
 import com.exaroton.proxy.commands.CommandSourceAccessor;
 import com.exaroton.proxy.commands.PluginMessageCommandSourceAccessor;
 import com.exaroton.proxy.network.id.CommandExecutionId;
+import com.exaroton.proxy.network.id.FilterPlayersRequestId;
 import com.exaroton.proxy.network.id.PermissionRequestId;
 import com.exaroton.proxy.network.messages.*;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -34,7 +35,12 @@ public abstract class ProxyMessageController<
     /**
      * A map of permission checks that are waiting for a response
      */
-    private final Map<PermissionRequestId, CompletableFuture<PermissionResponseMessage>> waitingPermissionChecks = new HashMap<>();
+    private final Map<PermissionRequestId, WaitingRequest<PermissionResponseMessage>> waitingPermissionChecks = new HashMap<>();
+
+    /**
+     * A map of permission checks that are waiting for a response
+     */
+    private final Map<FilterPlayersRequestId, WaitingRequest<FilterPlayersResponse>> waitingPlayerFilters = new HashMap<>();
 
     protected ProxyMessageController(Common common) {
         this.common = common;
@@ -53,11 +59,19 @@ public abstract class ProxyMessageController<
             executeCommand(source, executeCommandMessage.getArgs());
         } else if (message instanceof PermissionResponseMessage) {
             PermissionResponseMessage response = (PermissionResponseMessage) message;
-            CompletableFuture<PermissionResponseMessage> future = waitingPermissionChecks.remove(response.getRequestId());
-            if (future != null) {
-                future.complete(response);
+            var request = waitingPermissionChecks.remove(response.getRequestId());
+            if (request != null) {
+                request.getFuture().complete(response);
             } else {
                 Constants.LOG.error("Received permission response for unknown request: {}", response.getCommandExecutionId());
+            }
+        } else if (message instanceof FilterPlayersResponse) {
+            FilterPlayersResponse response = (FilterPlayersResponse) message;
+            var request = waitingPlayerFilters.remove(response.getRequestId());
+            if (request != null) {
+                request.getFuture().complete(response);
+            } else {
+                Constants.LOG.error("Received player filter response for unknown request: {}", response.getCommandExecutionId());
             }
         } else if (message instanceof TransferPlayerS2PMessage) {
             TransferPlayerS2PMessage transferPlayerS2PMessage = (TransferPlayerS2PMessage) message;
@@ -73,16 +87,16 @@ public abstract class ProxyMessageController<
                 return null;
             });
         } else {
-            Constants.LOG.error("Unknown message type: {}", message.getType());
+            Constants.LOG.error("Unknown message type: {}", message.getType().getSlug());
         }
     }
 
     public CompletableFuture<Boolean> hasPermission(ServerConnection source, CommandExecutionId id, String permission) {
         PermissionRequestMessage message = new PermissionRequestMessage(id, permission);
-        CompletableFuture<PermissionResponseMessage> future = new CompletableFuture<>();
-        waitingPermissionChecks.put(message.getRequestId(), future);
+        var response = new WaitingRequest<PermissionResponseMessage>(id);
+        waitingPermissionChecks.put(message.getRequestId(), response);
         send(source, message);
-        return future
+        return response.getFuture()
                 .thenApply(PermissionResponseMessage::getResult)
                 .orTimeout(3, TimeUnit.SECONDS)
                 .whenComplete((result, error) -> waitingPermissionChecks.remove(message.getRequestId()));
@@ -95,10 +109,23 @@ public abstract class ProxyMessageController<
 
     public void freeExecutionId(ServerConnection serverConnection, CommandExecutionId id) {
         send(serverConnection, new FreeExecutionIdMessage(id));
+        clearExecutionId(waitingPermissionChecks, id);
+        clearExecutionId(waitingPlayerFilters, id);
     }
 
     public void transferPlayers(ServerConnection serverConnection, CommandExecutionId id, String serverId, Set<String> playerNames) {
-        send(serverConnection, new TransferPlayersP2SMessage(id, serverId, playerNames.toArray(String[]::new)));
+        send(serverConnection, new TransferPlayersP2SMessage(id, serverId, playerNames));
+    }
+
+    public CompletableFuture<Set<String>> filterPlayers(ServerConnection serverConnection, CommandExecutionId id, Set<String> playerNames) {
+        var message = new FilterPlayersRequest(id, playerNames);
+        var request = new WaitingRequest<FilterPlayersResponse>(id);
+        waitingPlayerFilters.put(message.getRequestId(), request);
+        send(serverConnection, message);
+        return request.getFuture()
+                .thenApply(FilterPlayersResponse::getPlayerNames)
+                .orTimeout(3, TimeUnit.SECONDS)
+                .whenComplete((result, error) -> waitingPlayerFilters.remove(message.getRequestId()));
     }
 
     /**
@@ -114,4 +141,31 @@ public abstract class ProxyMessageController<
      * @return the player name
      */
     protected abstract String getPlayerName(PlayerConnection player);
+
+    private <K, V> void clearExecutionId(Map<K, WaitingRequest<V>> map, CommandExecutionId id) {
+        for (Map.Entry<K, WaitingRequest<V>> entry : new ArrayList<>(map.entrySet())) {
+            if (entry.getValue().getCommandExecutionId() == id) {
+                entry.getValue().getFuture().completeExceptionally(new IllegalStateException("Execution ID was freed"));
+                map.remove(entry.getKey());
+            }
+        }
+    }
+
+    protected static class WaitingRequest<T> {
+        private final CommandExecutionId id;
+        private final CompletableFuture<T> future;
+
+        protected WaitingRequest(CommandExecutionId id) {
+            this.id = id;
+            this.future = new CompletableFuture<>();
+        }
+
+        public CommandExecutionId getCommandExecutionId() {
+            return id;
+        }
+
+        public CompletableFuture<T> getFuture() {
+            return future;
+        }
+    }
 }
