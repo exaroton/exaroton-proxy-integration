@@ -54,7 +54,7 @@ public abstract class CommonProxyPlugin {
      * @return a future that completes when setup is done
      */
     public CompletableFuture<Void> setUp() {
-        initializeConfig();
+        loadConfig();
 
         if (config.apiToken == null || config.apiToken.isEmpty() || config.apiToken.equals("example-token")) {
             throw new IllegalStateException("No API token provided. Please set the API token in the configuration file.");
@@ -154,13 +154,25 @@ public abstract class CommonProxyPlugin {
      */
     public abstract Collection<String> getPlayers();
 
-    protected void initializeConfig() {
-        configFile = Services.platform().getConfig()
-                .autoreload()
-                .onAutoReload(this::onConfigLoaded)
-                .autosave()
-                .writingMode(WritingMode.REPLACE_ATOMIC)
+    /**
+     * Initializes the configFile field
+     */
+    protected void initializeConfigFile() {
+        if (configFile == null) {
+            configFile = Services.platform().getConfig()
+                    .autoreload()
+                    .onAutoReload(this::onConfigLoaded)
+                    .autosave()
+                    .writingMode(WritingMode.REPLACE_ATOMIC)
                 .build();
+        }
+    }
+
+    /**
+     * Loads the config, migrates old fields and updates the config file
+     */
+    protected void loadConfig() {
+        initializeConfigFile();
         configFile.load();
         migrateOldConfigFields();
         onConfigLoaded(false);

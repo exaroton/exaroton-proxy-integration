@@ -54,15 +54,15 @@ apiToken = 'example-token'
 
 # Watch servers in the proxy config and automatically remove them when they go offline
 # Note that this only works if you use .exaroton.me addresses in your velocity config.
-watch-servers = true
+watchServers = true
 
 # Automatically start servers when the proxy starts
-[auto-start]
+[autoStartServers]
 enabled = false
 servers = ["example.exaroton.me"]
 
 # Automatically stop servers when the proxy stops
-[auto-stop]
+[autoStopServers]
 enabled = false
 servers = ["example.exaroton.me"]
 ```
