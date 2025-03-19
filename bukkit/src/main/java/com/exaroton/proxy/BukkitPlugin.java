@@ -4,8 +4,6 @@ import com.exaroton.proxy.commands.BukkitProxyCommand;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class BukkitPlugin extends JavaPlugin {
@@ -15,27 +13,10 @@ public class BukkitPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         adventure = BukkitAudiences.create(this);
-        if (!checkIfBungee()) {
-            return;
-        } // TODO: consider if this works with modern velocity forwarding
 
         messageController = new BukkitMessageController(this);
         var command = new BukkitProxyCommand(this, messageController);
         command.register();
-    }
-
-    private boolean checkIfBungee() {
-        YamlConfiguration config = getServer().spigot().getConfig();
-        ConfigurationSection settings = config.getConfigurationSection("settings");
-
-        if (settings == null || !settings.getBoolean("bungeecord")) {
-            Constants.LOG.error("This server is not BungeeCord.");
-            Constants.LOG.error("If the server is already hooked to BungeeCord, please enable it into your spigot.yml aswell.");
-            Constants.LOG.error("Plugin disabled!");
-            getServer().getPluginManager().disablePlugin(this);
-            return false;
-        }
-        return true;
     }
 
     @Override
