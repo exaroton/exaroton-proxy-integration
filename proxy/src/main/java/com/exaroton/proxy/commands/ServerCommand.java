@@ -100,7 +100,7 @@ public abstract class ServerCommand extends Command<CommonProxyPlugin> implement
                     }
 
                     for (String possibleInput : List.of(server.getName(), server.getAddress(), server.getId())) {
-                        if (possibleInput.startsWith(builder.getRemaining())) {
+                        if (possibleInput.toLowerCase(Locale.ROOT).startsWith(builder.getRemainingLowerCase())) {
                             builder.suggest(possibleInput);
                         }
                     }
