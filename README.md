@@ -10,6 +10,15 @@
         <br />
         <br />
         Installing this plugin on proxies that do not run on exaroton but use exaroton servers is also supported.
+        <br />
+        <a href="https://modrinth.com/plugin/exaroton" target="_blank"><strong>« Download Plugin/Mod on Modrinth »</strong></a>
+        <br />
+        <br />
+        <a href="https://www.spigotmc.org/resources/exaroton-bungeecord.95084/" target="_blank">SpigotMC (BungeeCord)</a>
+        ·
+        <a href="https://www.spigotmc.org/resources/exaroton-backend-integration.123394/" target="_blank">SpigotMC (Bukkit)</a>
+        ·
+        <a href="https://hangar.papermc.io/exaroton/exaroton-proxy-plugin" target="_blank">Hangar</a>
     </p>
 </div>
 

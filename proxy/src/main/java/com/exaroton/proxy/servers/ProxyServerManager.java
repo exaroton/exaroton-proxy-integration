@@ -52,7 +52,7 @@ public abstract class ProxyServerManager<ServerInfo> {
             return false;
         }
 
-        return this.addServer(getName(server), server.getSocketAddress().get(), server);
+        return this.addServer(getNameOrDefault(server), server.getSocketAddress().get(), server);
     }
 
     /**
@@ -61,7 +61,7 @@ public abstract class ProxyServerManager<ServerInfo> {
      * @return true if the server was removed
      */
     public final boolean removeServer(Server server) {
-        return this.removeServer(getName(server));
+        return this.removeServer(getNameOrDefault(server));
     }
 
     /**
@@ -70,7 +70,7 @@ public abstract class ProxyServerManager<ServerInfo> {
      * @return true if the server is already in the proxy
      */
     public final boolean hasServer(Server server) {
-        return this.hasServer(getName(server));
+        return this.hasServer(getNameOrDefault(server));
     }
 
     /**
@@ -79,7 +79,7 @@ public abstract class ProxyServerManager<ServerInfo> {
      * @param player player to transfer
      */
     public final void transferPlayer(Server server, String player) {
-        String name = getName(server);
+        String name = getNameOrDefault(server);
 
         if (!hasServer(name)) {
             Constants.LOG.error("Tried to transfer player {} to non-existing server: {}", player, name);
@@ -156,6 +156,16 @@ public abstract class ProxyServerManager<ServerInfo> {
     }
 
     /**
+     * Get the name used for this server in the proxy configuration or empty if it does not exist in the config.
+     * @param server server to get the name for
+     * @return name of the server in the proxy config or empty if it does not exist
+     */
+    public Optional<String> getName(Server server) {
+        return Optional.ofNullable(this.serverInfo.get(server.getId()))
+                .map(this::getName);
+    }
+
+    /**
      * add a server to the proxy
      * @param name identifier for this server from the proxy config or server name
      * @param address InetSocketAddress of the server to add
@@ -219,9 +229,7 @@ public abstract class ProxyServerManager<ServerInfo> {
         return Optional.ofNullable(this.serverInfo.get(id));
     }
 
-    private String getName(Server server) {
-        return Optional.ofNullable(this.serverInfo.get(server.getId()))
-                .map(this::getName)
-                .orElseGet(server::getName);
+    private String getNameOrDefault(Server server) {
+        return getName(server).orElseGet(server::getName);
     }
 }

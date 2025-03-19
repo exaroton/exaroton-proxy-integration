@@ -89,8 +89,6 @@ public abstract class ServerCommand extends Command<CommonProxyPlugin> implement
     protected abstract Optional<Set<ServerStatus>> getAllowableServerStatuses();
 
     private <T> CompletableFuture<Suggestions> suggestServerName(CommandContext<T> context, SuggestionsBuilder builder) {
-        // TODO: names from the proxy
-
         Optional<Set<ServerStatus>> allowableStatuses = getAllowableServerStatuses();
         try {
             return this.plugin.getServers().thenApply(servers -> {
@@ -99,7 +97,14 @@ public abstract class ServerCommand extends Command<CommonProxyPlugin> implement
                         continue;
                     }
 
-                    for (String possibleInput : List.of(server.getName(), server.getAddress(), server.getId())) {
+                    var possibleInputs = new ArrayList<String>();
+                    possibleInputs.add(server.getName());
+                    possibleInputs.add(server.getAddress());
+                    possibleInputs.add(server.getId());
+
+                    plugin.getProxyServerManager().getName(server).ifPresent(possibleInputs::add);
+
+                    for (String possibleInput : possibleInputs) {
                         if (possibleInput.toLowerCase(Locale.ROOT).startsWith(builder.getRemainingLowerCase())) {
                             builder.suggest(possibleInput);
                         }
