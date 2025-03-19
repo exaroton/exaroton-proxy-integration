@@ -23,7 +23,6 @@ jobs:
           version: ${{ github.event.inputs.version }}
           hangar_token: ${{ secrets.HANGAR_TOKEN }}
           modrinth_token: ${{ secrets.MODRINTH_TOKEN }}
-          curseforge_token: ${{ secrets.CURSEFORGE_TOKEN }}
 
       - name: Build with Gradle
         run: ./gradlew buildAll
@@ -62,7 +61,6 @@ jobs:
       matrix:
         task: [modrinth]
         project: [bukkit, bungee, velocity]
-        # TODO: Add CurseForge bukkit publishing once CurseForgeGradle supports that
     steps:
       - name: Checkout Sources
         uses: actions/checkout@v4
@@ -73,7 +71,6 @@ jobs:
           version: ${{ github.event.inputs.version }}
           hangar_token: ${{ secrets.HANGAR_TOKEN }}
           modrinth_token: ${{ secrets.MODRINTH_TOKEN }}
-          curseforge_token: ${{ secrets.CURSEFORGE_TOKEN }}
 
       - name: Publish ${{ matrix.project }} with ${{ matrix.task }}
         run: ./gradlew ":${{ matrix.project }}:${{ matrix.task }}"
@@ -91,7 +88,6 @@ jobs:
           version: ${{ github.event.inputs.version }}
           hangar_token: ${{ secrets.HANGAR_TOKEN }}
           modrinth_token: ${{ secrets.MODRINTH_TOKEN }}
-          curseforge_token: ${{ secrets.CURSEFORGE_TOKEN }}
 
       - name: Publish to Hangar
         run: ./gradlew publishAllPublicationsToHangar

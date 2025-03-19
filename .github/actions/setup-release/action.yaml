@@ -10,9 +10,6 @@ inputs:
   modrinth_token:
     description: 'Modrinth API token'
     required: true
-  curseforge_token:
-    description: 'CurseForge API token'
-    required: true
 runs:
   using: composite
   steps:
@@ -29,5 +26,4 @@ runs:
         mkdir -p "$HOME/.gradle"
         echo "hangar_api_key = ${{ inputs.hangar_token }}" >> "$HOME/.gradle/gradle.properties"
         echo "modrinth_api_token = ${{ inputs.modrinth_token }}" >> "$HOME/.gradle/gradle.properties"
-        echo "curseforge_token = ${{ inputs.curseforge_token }}" >> "$HOME/.gradle/gradle.properties"
       shell: bash
