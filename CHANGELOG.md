@@ -1,3 +1,6 @@
+# v2.0.2
+- List 1.21.5, .6 and .7 support
+
 # v2.0.1
 - The bukkit plugin no longer refuses to load if velocities modern forwarding is used
 - Proxy names are now also suggested for server arguments
