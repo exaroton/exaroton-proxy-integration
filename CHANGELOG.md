@@ -1,3 +1,7 @@
+# v2.0.3
+- Fix Stop command
+- List 1.21.8 support
+
 # v2.0.2
 - List 1.21.5, .6 and .7 support
 

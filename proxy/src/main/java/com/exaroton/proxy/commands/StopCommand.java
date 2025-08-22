@@ -33,7 +33,7 @@ public class StopCommand extends ServerCommand {
         new WaitForStatusSubscriber(subscribers.getListener(server), source, ServerStatus.GROUP_OFFLINE)
                 .subscribe();
 
-        server.start();
+        server.stop();
         source.sendSuccess(Component.text("Stopping server")
                 .appendSpace()
                 .append(Components.addressText(server))
