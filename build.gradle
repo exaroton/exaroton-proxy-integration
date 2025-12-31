@@ -58,7 +58,7 @@ hangarPublish {
             }
             waterfall {
                 jar = project(":bungeecord").tasks.named("shadowJar").get().outputs.files.singleFile
-                platformVersions = List.of("1.21") // TODO: Check if 1.22 will be selectable on hangar since waterfall won't be updated
+                platformVersions = List.of("1.21")
             }
             velocity {
                 jar = project(":velocity").tasks.named("shadowJar").get().outputs.files.singleFile
