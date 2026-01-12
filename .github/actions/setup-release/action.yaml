@@ -10,15 +10,31 @@ inputs:
   modrinth_token:
     description: 'Modrinth API token'
     required: true
+outputs:
+  normalized_version:
+    description: 'Normalized version (without a leading v)'
+    value: ${{ steps.normalize_version.outputs.version }}
 runs:
   using: composite
   steps:
+    - name: Normalize and Validate Version
+      id: normalize_version
+      run: |
+        RAW_VERSION="${{ inputs.version }}"
+        VERSION="${RAW_VERSION#v}"
+        if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
+          echo "::error::Version '$RAW_VERSION' is not valid semver (after removing leading v: '$VERSION')"
+          exit 1
+        fi
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+      shell: bash
+
     - name: Setup Build Environment
       uses: ./.github/actions/setup
 
     - name: Update version in gradle.properties
       run: |
-        sed -i "s/^version=.*$/version=${{ inputs.version }}/" gradle.properties
+        sed -i "s/^version=.*$/version=${{ steps.normalize_version.outputs.version }}/" gradle.properties
       shell: bash
 
     - name: Configure publishing secrets

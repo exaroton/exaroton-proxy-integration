@@ -18,6 +18,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Build Environment
+        id: setup
         uses: ./.github/actions/setup-release
         with:
           version: ${{ github.event.inputs.version }}
@@ -35,12 +36,12 @@ jobs:
         with:
           files: ./result/*.jar
           body_path: "${{ github.workspace }}/release-body.md"
-          name: v${{ github.event.inputs.version }}
-          tag_name: ${{ github.event.inputs.version }}
+          name: v${{ steps.setup.outputs.normalized_version }}
+          tag_name: ${{ steps.setup.outputs.normalized_version }}
 
       - name: Bump version in gradle.properties
         run: |
-          IFS='.' read -r major minor patch <<< "${{ github.event.inputs.version }}"
+          IFS='.' read -r major minor patch <<< "${{ steps.setup.outputs.normalized_version }}"
           next_patch=$((patch + 1))
           next_version="${major}.${minor}.${next_patch}-SNAPSHOT"
           sed -i "s/^version=.*$/version=$next_version/" gradle.properties
