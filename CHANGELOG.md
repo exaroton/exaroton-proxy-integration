@@ -1,3 +1,9 @@
+# v2.0.6
+
+- Fix caching of server list
+
+---
+
 # v2.0.5
 
 - Fix version number
