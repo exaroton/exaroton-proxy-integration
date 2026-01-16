@@ -106,7 +106,7 @@ public class ServerCache implements ServerStatusSubscriber {
             return false;
         }
 
-        return !Duration.between(lastUpdate, Instant.now().plus(CACHE_DURATION)).isNegative();
+        return Duration.between(lastUpdate.plus(CACHE_DURATION), Instant.now()).isNegative();
     }
 
     @Override
